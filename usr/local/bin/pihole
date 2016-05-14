@@ -1,0 +1,120 @@
+#!/usr/bin/python
+# Pi-hole: A black hole for Internet advertisements
+# (c) 2015, 2016 by Jacob Salmela
+# Network-wide ad blocking via your Raspberry Pi
+# http://pi-hole.net
+# Pi-hole controller
+#
+# Pi-hole is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+
+##############################
+######### IMPORTS ############
+import sys
+import argparse
+import os
+import subprocess
+
+##############################
+######## FUNCTIONS ###########
+def usage():
+    return """
+(c) 2014-2016 by Jacob Salmela.  http://jacobsalmela.com
+Control Pi-hole from a single command
+"""
+
+def verboseOutput(*args):
+    if verbose:
+        try:
+            print "Verbose:", args
+        except:
+            pass
+def update():
+    pass
+
+def uninstall():
+    pass
+
+def gravity():
+    pass
+
+def whitelist():
+    pass
+
+def blacklist():
+    pass
+
+def flush():
+    pass
+
+def lcd():
+    pass
+
+def chronometer():
+    pass
+
+def main():
+    '''Sub-space scanners to parse arguments'''
+    parser = argparse.ArgumentParser(usage=usage())
+    parser.add_argument('--verbose', '-v',
+                        help='More verbose output from this tool.')
+
+    installation_group = parser.add_argument_group('Options for getting information')
+    installation_group.add_argument('--update', '-u',
+                        help='Update Pi-hole and/or the Web interface')
+    installation_group.add_argument('--uninstall', '-r',
+                        help='Completely uninstall Pi-hole')
+
+    pihole_core_group = parser.add_argument_group('Options for manipulating core Pi-hole functionality')
+    pihole_core_group.add_argument('--gravity', '-g',
+                        help='Update the default domain block list')
+    pihole_core_group.add_argument('--whitelist', '-w',
+                        help='Whitelist one or more domains')
+    pihole_core_group.add_argument('--blacklist', '-b',
+                        help='Blacklist one or more domains')
+
+    log_group = parser.add_argument_group('Options for getting information')
+    log_group.add_argument('--flush', '-f',
+                        help='Flush the log file')
+
+    supplemental_group = parser.add_argument_group('Supplemental features to enhance Pi-hole')
+    supplemental_group.add_argument('--lcd', '-l',
+                        help='Automatically set up an Adafruit 2.8" TFT LCD')
+    supplemental_group.add_argument('--chronometer', '-c',
+                        help='Display real-time stats over SSH or on an LCD screen')
+
+    options = parser.parse_args()
+
+    # Make sure at least one option has been chosen
+    one_attr_set = False
+    options_dict = vars(options)
+    for key in options_dict.keys():
+        if options_dict[key]:
+            one_attr_set = True
+            break
+    if not one_attr_set:
+        parser.print_help()
+        exit(1)
+
+    # Pi-hole Computer Access Retrieval System
+    if options.update:
+        update()
+    if options.uninstall:
+        uninstall()
+    if options.gravity:
+        gravity()
+    if options.whitelist:
+        whitelist(options)
+    if options.blacklist:
+        blacklist(options)
+    if options.flush:
+        flush()
+    if options.lcd(options):
+        lcd()
+    if options.chronometer:
+        chronometer()
+
+if __name__ == "__main__":
+    main()
