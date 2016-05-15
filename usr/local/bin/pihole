@@ -16,6 +16,7 @@ import sys
 import argparse
 import os
 import subprocess
+import pihole_vars
 
 ##############################
 ######## FUNCTIONS ###########
@@ -31,6 +32,7 @@ def verboseOutput(*args):
             print "Verbose:", args
         except:
             pass
+
 def update():
     pass
 
@@ -68,7 +70,7 @@ def main():
                         help='Completely uninstall Pi-hole')
 
     pihole_core_group = parser.add_argument_group('Options for manipulating core Pi-hole functionality')
-    pihole_core_group.add_argument('--gravity', '-g',
+    pihole_core_group.add_argument('--gravity', '-g', action='store_true',
                         help='Update the default domain block list')
     pihole_core_group.add_argument('--whitelist', '-w',
                         help='Whitelist one or more domains')
@@ -111,8 +113,8 @@ def main():
         blacklist(options)
     if options.flush:
         flush()
-    if options.lcd(options):
-        lcd()
+    #if options.lcd():
+    #    lcd()
     if options.chronometer:
         chronometer()
 
