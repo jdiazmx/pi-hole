@@ -14,10 +14,15 @@
 ######### IMPORTS ############
 import pihole_vars
 import urllib
+import os.path
 from urlparse import urlparse
 
 ##############################
 ######## FUNCTIONS ###########
+def local_calibration():
+    if os.path.isfile(pihole_conf):
+        print("Local calibration requested.  Sanning...")
+
 # Downloads the blocklists
 def gravity_well():
     # For each URL in the sources list
