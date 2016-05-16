@@ -27,10 +27,10 @@ def gravity_well():
         domain = '{uri.netloc}'.format(uri=parsed_uri)
         print("Initiating transport of " + domain + "...")
 
-        # Save the file as list.0.domain.name.
+        # Save the file as list.n.domain.name.domains
         # This is useful for debugging as well as keeping the lists out of RAM
         blocklist = urllib.URLopener()
-        blocklist.retrieve(url, "list." + str(idx) + "." + domain)
+        blocklist.retrieve(url, "list." + str(idx) + "." + domain + domains_extension)
 
 
 
