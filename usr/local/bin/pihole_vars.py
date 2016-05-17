@@ -43,7 +43,7 @@ event_horizon = basename + ".2.eventHorizon.txt"
 accretion_disc = basename + ".3.accretionDisc.txt"
 
 # User-defined custom settings (optional)
-local_vars = pihole_dir + "pihole.conf"
+local_vars = pihole_dir + "/pihole.conf"
 
 ##############################
 ######## FUNCTIONS ###########
