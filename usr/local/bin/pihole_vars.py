@@ -26,12 +26,13 @@ sources=["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
 "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",
 "http://hosts-file.net/ad_servers.txt"]
 
-global basename, pihole_dir, ad_list, blacklist, whitelist, domains_extension, matter, and_light, event_horizon, accretion_disc, local_vars
+global basename, pihole_dir, ad_list, custom_ad_list, blacklist, whitelist, domains_extension, matter, and_light, event_horizon, accretion_disc, local_vars
 
 # File path variables
 basename = "pihole"
 pihole_dir = "/etc/" + basename
 ad_list = pihole_dir + "/gravity.list"
+custom_ad_list = pihole_dir + "/ad_list.custom"
 blacklist = pihole_dir + "/blacklist.txt"
 whitelist = pihole_dir + "/whitelist.txt"
 domains_extension = "domains"
