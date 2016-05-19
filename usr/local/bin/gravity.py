@@ -23,7 +23,9 @@ from urlparse import urlparse
 ######## FUNCTIONS ###########
 def local_calibration():
     if os.path.isfile(pihole_conf):
-        print("Local calibration requested.  Sanning...")
+        print("Local calibration requested.  Scanning...")
+    if os.path.isfile(custom_ad_list):
+        print("Custom ad lists detected.  Scanning...")
 
 # Be a respectful netizen by only downloading the list if it is newer than the local file
 def transport_buffer(url, filename):
