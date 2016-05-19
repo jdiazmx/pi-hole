@@ -70,6 +70,11 @@ def transport_buffer(url, filename):
         print("  * Pattern check was inconclusive.")
         return True
 
+# Finds all of the ad list files
+def short_range_scanners():
+    for file in os.listdir('/Users/salmela'):
+        if file.startswith(list_prefix):
+            print(file)
 
 # Downloads the blocklists
 def gravity_well():
@@ -105,3 +110,6 @@ def gravity_well():
 
 # Download the blocklists
 gravity_well()
+
+# Find all of the downloaded lists
+short_range_scanners()
