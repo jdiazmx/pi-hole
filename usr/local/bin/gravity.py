@@ -17,6 +17,7 @@ import urllib2
 import os
 import time
 import datetime
+import re
 from urlparse import urlparse
 
 ##############################
@@ -108,8 +109,35 @@ def collapse():
                     outfile.write(infile.read())
 
 
+
+def matter_and_light():
+    print("Getting just the domain names...")
+    # Open the aggregated list
+    f = open(pihole_vars.matter, "rb")
+    # Make a new file to put just the domain names in
+    with open(pihole_vars.and_light, "wb") as and_light:
+        # For each line from the aggregated list,
+        for line in f.readlines():
+            # Find all the domains (P.S. I have no idea how the regex works, but it seems to)
+            line = re.findall(r'(\S+)', line)
+            # If there is not an entry, skip it
+            if not line:
+                pass
+            # Also pass if there is a comment
+            elif "#" in line[0]:
+                pass
+            # Also print the second field if the line starts with 127.0.0.1
+            elif (line[0] == "127.0.0.1"):
+                and_light.write("%s\n" % line[1])
+            # After all that, write the first field, which should be the domain name
+            else:
+                and_light.write("%s\n" % line[0])
+
 # Download the blocklists
 gravity_well()
 
 # Find all of the downloaded lists
 collapse()
+
+# Extract just the domain names
+matter_and_light()
