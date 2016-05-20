@@ -108,7 +108,12 @@ def collapse():
                 with open(f, "rb") as infile:
                     outfile.write(infile.read())
 
-
+# Line count to display quantity of domains to the user
+def particle_density(filename):
+    with open(filename) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
 
 def matter_and_light():
     print("Getting just the domain names...")
@@ -132,6 +137,7 @@ def matter_and_light():
             # After all that, write the first field, which should be the domain name
             else:
                 and_light.write("%s\n" % line[0])
+    print(str(particle_density(pihole_vars.event_horizon)) + " domains exist before refinement.")
 
 def event_horizon():
     print("Sorting and removing duplicates...")
@@ -148,6 +154,7 @@ def event_horizon():
             lines_seen.add(line)
     # Sort the list for readability
     outfile.writelines(sorted(lines_seen))
+    print(str(particle_density(pihole_vars.event_horizon)) + " domains trapped in the event horizon.")
 
 # Download the blocklists
 gravity_well()
