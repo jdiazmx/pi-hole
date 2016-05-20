@@ -133,6 +133,22 @@ def matter_and_light():
             else:
                 and_light.write("%s\n" % line[0])
 
+def event_horizon():
+    print("Sorting and removing duplicates...")
+    # Open the list of just domain names
+    f = open(pihole_vars.and_light, "rb")
+    # Keep track of the lines that already exist
+    lines_seen = set()
+    # Open the file the sorted list will go into
+    outfile = open(pihole_vars.event_horizon, "wb")
+    # For each line in the domain list,
+    for line in open(pihole_vars.and_light, "rb"):
+        # If the line is not a duplicate, write it to the new file
+        if line not in lines_seen:
+            lines_seen.add(line)
+    # Sort the list for readability
+    outfile.writelines(sorted(lines_seen))
+
 # Download the blocklists
 gravity_well()
 
@@ -141,3 +157,6 @@ collapse()
 
 # Extract just the domain names
 matter_and_light()
+
+# Sort and remove duplicates
+event_horizon()
