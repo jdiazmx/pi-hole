@@ -22,15 +22,15 @@ from urlparse import urlparse
 ##############################
 ######## FUNCTIONS ###########
 def local_calibration():
-    if os.path.isfile(pihole_conf):
+    if os.path.isfile(pihole_vars.pihole_conf):
         print("Local calibration requested.  Scanning...")
-    if os.path.isfile(custom_ad_list):
+    if os.path.isfile(pihole_vars.custom_ad_list):
         print("Custom ad lists detected.  Scanning...")
 
 # Be a respectful netizen by only downloading the list if it is newer than the local file
 def transport_buffer(url, filename):
     # Get the list
-    remote_file = urllib2.urlopen(url)
+    remote_file = urllib2.urlopen(url, timeout=5)
     try:
         # Get the header from the list so the modification time can be checked
         last_modified = remote_file.headers["Last-Modified"]
@@ -70,12 +70,6 @@ def transport_buffer(url, filename):
         print("  * Pattern check was inconclusive.")
         return True
 
-# Finds all of the ad list files
-def short_range_scanners():
-    for file in os.listdir('/Users/salmela'):
-        if file.startswith(list_prefix):
-            print(file)
-
 # Downloads the blocklists
 def gravity_well():
     # For each URL in the sources list
@@ -99,17 +93,23 @@ def gravity_well():
             if (pattern_check == True) or (pattern_check == None):
                 print("  * Downloading...")
                 print("")
-                f = urllib2.urlopen(url, timeout = 2)
-                data = f.read()
-                with open(filename, "wb") as code:
-                    code.write(data)
             # Otherwise, do not download so we can respect the list maintiner's bandwidth
             elif pattern_check == False:
                 print("  * Skipping...")
                 print("")
 
+# Finds and aggregats all of the ad list files
+def collapse():
+    print("Aggregating list of domains...")
+    with open(pihole_vars.matter, "wb") as outfile:
+        for f in os.listdir(pihole_vars.pihole_dir):
+            if f.startswith(pihole_vars.list_prefix):
+                with open(f, "rb") as infile:
+                    outfile.write(infile.read())
+
+
 # Download the blocklists
 gravity_well()
 
 # Find all of the downloaded lists
-short_range_scanners()
+collapse()
