@@ -37,6 +37,7 @@ list_prefix = "list."
 blacklist = pihole_dir + "blacklist.txt"
 whitelist = pihole_dir + "whitelist.txt"
 domains_extension = "domains"
+pihole_ip = "@PIHOLEIP@"
 
 # Variables for various steps of aggregating domains from multiple sources
 matter = pihole_dir + basename + ".0.matterandlight.txt"
