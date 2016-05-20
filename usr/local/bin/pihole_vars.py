@@ -30,22 +30,22 @@ global basename, pihole_dir, ad_list, custom_ad_list, list_prefix, blacklist, wh
 
 # File path variables
 basename = "pihole"
-pihole_dir = "/etc/" + basename
-ad_list = pihole_dir + "/gravity.list"
-custom_ad_list = pihole_dir + "/ad_list.custom"
+pihole_dir = "/etc/" + basename + "/"
+ad_list = pihole_dir + "gravity.list"
+custom_ad_list = pihole_dir + "ad_list.custom"
 list_prefix = "list."
-blacklist = pihole_dir + "/blacklist.txt"
-whitelist = pihole_dir + "/whitelist.txt"
+blacklist = pihole_dir + "blacklist.txt"
+whitelist = pihole_dir + "whitelist.txt"
 domains_extension = "domains"
 
 # Variables for various steps of aggregating domains from multiple sources
-matter = basename + ".0.matterandlight.txt"
-and_light = basename + ".1.supernova.txt"
-event_horizon = basename + ".2.eventHorizon.txt"
-accretion_disc = basename + ".3.accretionDisc.txt"
+matter = pihole_dir + basename + ".0.matterandlight.txt"
+and_light = pihole_dir + basename + ".1.supernova.txt"
+event_horizon = pihole_dir + basename + ".2.eventHorizon.txt"
+accretion_disc = pihole_dir + basename + ".3.accretionDisc.txt"
 
 # User-defined custom settings (optional)
-local_vars = pihole_dir + "/pihole.conf"
+local_vars = pihole_dir + "pihole.conf"
 
 ##############################
 ######## FUNCTIONS ###########
