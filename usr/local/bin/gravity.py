@@ -156,6 +156,19 @@ def event_horizon():
     outfile.writelines(sorted(lines_seen))
     print(str(particle_density(pihole_vars.event_horizon)) + " domains trapped in the event horizon.")
 
+def assimilate():
+    # Your technological distinctiveness will be added to our own
+    # Your domains will adapt to service us
+    # Resistance is futile
+    print("Formating domain list to HOSTS format...")
+    # Open the list of just domain names
+    f = open(pihole_vars.event_horizon, "rb")
+    # Open the file for the formatted list
+    with open(pihole_vars.ad_list, "wb") as ad_list:
+        for line in open(pihole_vars.event_horizon, "rb"):
+            # Prepend each line with the Pi-hole's IP address and a space
+            ad_list.write(pihole_vars.pihole_ip + " " + line)
+
 # Download the blocklists
 gravity_well()
 
@@ -167,3 +180,6 @@ matter_and_light()
 
 # Sort and remove duplicates
 event_horizon()
+
+# Format the domains into host format
+assimilate()
