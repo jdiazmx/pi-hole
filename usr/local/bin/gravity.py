@@ -102,10 +102,10 @@ def gravity_well():
 # Finds and aggregats all of the ad list files
 def collapse():
     print("Aggregating list of domains...")
-    with open(pihole_vars.matter, "wb") as outfile:
+    with open(pihole_vars.matter, "w") as outfile:
         for f in os.listdir(pihole_vars.pihole_dir):
             if f.startswith(pihole_vars.list_prefix):
-                with open(f, "rb") as infile:
+                with open(f, "r") as infile:
                     outfile.write(infile.read())
 
 # Line count to display quantity of domains to the user
@@ -118,9 +118,9 @@ def particle_density(filename):
 def matter_and_light():
     print("Getting just the domain names...")
     # Open the aggregated list
-    f = open(pihole_vars.matter, "rb")
+    f = open(pihole_vars.matter, "r")
     # Make a new file to put just the domain names in
-    with open(pihole_vars.and_light, "wb") as and_light:
+    with open(pihole_vars.and_light, "w") as and_light:
         # For each line from the aggregated list,
         for line in f.readlines():
             # Find all the domains (P.S. I have no idea how the regex works, but it seems to)
@@ -137,18 +137,18 @@ def matter_and_light():
             # After all that, write the first field, which should be the domain name
             else:
                 and_light.write("%s\n" % line[0])
-    print(str(particle_density(pihole_vars.event_horizon)) + " domains exist before refinement.")
+    print(str(particle_density(pihole_vars.matter)) + " domains exist before refinement.")
 
 def event_horizon():
     print("Sorting and removing duplicates...")
     # Open the list of just domain names
-    f = open(pihole_vars.and_light, "rb")
+    f = open(pihole_vars.and_light, "r")
     # Keep track of the lines that already exist
     lines_seen = set()
     # Open the file the sorted list will go into
-    outfile = open(pihole_vars.event_horizon, "wb")
+    outfile = open(pihole_vars.event_horizon, "w")
     # For each line in the domain list,
-    for line in open(pihole_vars.and_light, "rb"):
+    for line in open(pihole_vars.and_light, "r"):
         # If the line is not a duplicate, write it to the new file
         if line not in lines_seen:
             lines_seen.add(line)
@@ -162,10 +162,10 @@ def assimilate():
     # Resistance is futile
     print("Formating domain list to HOSTS format...")
     # Open the list of just domain names
-    f = open(pihole_vars.event_horizon, "rb")
+    f = open(pihole_vars.event_horizon, "r")
     # Open the file for the formatted list
-    with open(pihole_vars.ad_list, "wb") as ad_list:
-        for line in open(pihole_vars.event_horizon, "rb"):
+    with open(pihole_vars.ad_list, "w") as ad_list:
+        for line in open(pihole_vars.event_horizon, "r"):
             # Prepend each line with the Pi-hole's IP address and a space
             ad_list.write(pihole_vars.pihole_ip + " " + line)
 
