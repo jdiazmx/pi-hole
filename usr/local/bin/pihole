@@ -29,7 +29,7 @@ Control Pi-hole from a single command
 def verboseOutput(*args):
     if verbose:
         try:
-            print "Verbose:", args
+            print("Verbose:", args)
         except:
             pass
 

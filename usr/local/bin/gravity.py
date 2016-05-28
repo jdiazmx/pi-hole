@@ -13,12 +13,12 @@
 ##############################
 ######### IMPORTS ############
 import pihole_vars
-import urllib2
+from urllib.request import urlopen
 import os
 import time
 import datetime
 import re
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 ##############################
 ######## FUNCTIONS ###########
@@ -31,7 +31,7 @@ def local_calibration():
 # Be a respectful netizen by only downloading the list if it is newer than the local file
 def transport_buffer(url, filename):
     # Get the list
-    remote_file = urllib2.urlopen(url, timeout=5)
+    remote_file = urlopen(url, timeout=5)
     try:
         # Get the header from the list so the modification time can be checked
         last_modified = remote_file.headers["Last-Modified"]
