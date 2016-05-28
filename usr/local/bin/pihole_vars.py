@@ -3,28 +3,33 @@
 # (c) 2015, 2016 by Jacob Salmela
 # Network-wide ad blocking via your Raspberry Pi
 # http://pi-hole.net
-# Pi-hole varibles
+# Pi-hole varibles and classes
 #
 # Pi-hole is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 
-##############################
-######### IMPORTS ############
 
-##############################
-######## VARIABLES ###########
+# IMPORTS
+
+
+from datetime import datetime
+
+
+# VARIABLES
+
+
 # URLs of block lists to use
 global sources
-sources=["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
-"http://adblock.gjtech.net/?format=unix-hosts",
-"http://mirror1.malwaredomains.com/files/justdomains",
-"http://sysctl.org/cameleon/hosts",
-"https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist",
-"https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt",
-"https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",
-"http://hosts-file.net/ad_servers.txt"]
+sources = ["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
+           "http://adblock.gjtech.net/?format=unix-hosts",
+           "http://mirror1.malwaredomains.com/files/justdomains",
+           "http://sysctl.org/cameleon/hosts",
+           "https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist",
+           "https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt",
+           "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",
+           "http://hosts-file.net/ad_servers.txt"]
 
 global basename, pihole_dir, ad_list, custom_ad_list, list_prefix, blacklist, whitelist, domains_extension, matter, and_light, event_horizon, accretion_disc, local_vars
 
@@ -48,5 +53,26 @@ accretion_disc = pihole_dir + basename + ".3.accretionDisc.txt"
 # User-defined custom settings (optional)
 local_vars = pihole_dir + "pihole.conf"
 
-##############################
-######## FUNCTIONS ###########
+
+# CLASSES
+
+
+class List:
+    def __init__(self, url="", date=datetime.now()):
+        self.url = url
+        self.date = date
+
+
+class Query:
+    def __init__(self, time=datetime.now(), domain="", client="", record="", blocked=True):
+        self.time = time
+        self.domain = domain
+        self.client = client
+        self.record = record
+        self.blocked = blocked
+
+
+class Pihole:
+    def __init__(self):
+        # Read in lists, domains, and log
+        print("placeholder")
