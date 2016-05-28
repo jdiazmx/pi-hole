@@ -15,6 +15,7 @@
 
 
 from datetime import datetime
+import sqlite3
 
 
 # VARIABLES
@@ -73,6 +74,31 @@ class Query:
 
 
 class Pihole:
+    domains = []
+    lists = []
+    log = []
+
     def __init__(self):
-        # Read in lists, domains, and log
-        print("placeholder")
+        # Read in domains, lists, and log
+        database = sqlite3.connect("/etc/pihole/pihole.db")
+        cursor = database.cursor()
+
+        # Read in domains
+        # ad_domains (domain TEXT)
+        cursor.execute("SELECT * FROM ad_domains")
+        for row in cursor:
+            self.domains.append(row[0])
+
+        # Read in lists
+        # lists (url TEXT, date DATETIME)
+        cursor.execute("SELECT * FROM lists")
+        for row in cursor:
+            self.lists.append(List(row[0], row[1]))
+
+        # Read in log
+        # log (time DATETIME, domain TEXT, client TEXT, record TEXT, blocked INTEGER)
+        for row in cursor:
+            self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
+
+        # Close database
+        database.close()
