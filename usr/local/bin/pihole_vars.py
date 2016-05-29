@@ -87,6 +87,7 @@ class List:
             for row in cursor:
                 self.domains.append(row[0])
 
+            cursor.commit()
             database.close()
         return self.domains
 
@@ -95,6 +96,8 @@ class List:
         cursor = database.cursor()
 
         cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", self.uri)
+
+        cursor.commit()
         database.close()
 
 
@@ -132,6 +135,7 @@ class Pihole:
         for row in cursor:
             self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
 
+        cursor.commit()
         database.close()
 
     def update_list(self, uri, domains, time):
@@ -156,4 +160,5 @@ class Pihole:
         for domain in domains:
             cursor.execute("INSERT INTO unformatted_domains VALUES(?, ?)", domain, list_id)
 
+        cursor.commit()
         database.close()
