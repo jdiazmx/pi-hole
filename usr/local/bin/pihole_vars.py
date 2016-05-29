@@ -59,8 +59,9 @@ local_vars = pihole_dir + "pihole.conf"
 
 
 # Database Schema:
-# ad_domains (domain TEXT, list INTEGER)
-# lists (id INTEGER PRIMARY KEY, url TEXT, date DATETIME)
+# ad_domains (domain TEXT)
+# unformatted_domains (domain TEXT, list_id INTEGER)
+# lists (id INTEGER PRIMARY KEY, uri TEXT, date DATETIME)
 # log (time DATETIME, domain TEXT, client TEXT, record TEXT, blocked INTEGER)
 
 
@@ -69,24 +70,15 @@ def connect():
 
 
 class List:
-    def __init__(self, url="", date=datetime.now()):
-        self.url = url
+    def __init__(self, uri="", date=datetime.now()):
+        self.uri = uri
         self.date = date
-        self.domains = None
 
-    def get_domains(self):
-        # Lazy init
-        if self.domains is None:
-            # Get domains
-            self.domains = []
-            database = connect()
-            cursor = database.cursor()
+    def clean(self):
+        database = connect()
+        cursor = database.cursor()
 
-            cursor.execute('SELECT domain FROM ad_domains WHERE list IN (SELECT id FROM lists WHERE url="{}")'.format(self.url))
-            for row in cursor:
-                self.domains.append(row[0])
-
-        return self.domains
+        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE url=?)", self.uri)
 
 
 class Query:
@@ -119,6 +111,7 @@ class Pihole:
             self.lists.append(List(row[1], row[2]))
 
         # Read in log
+        cursor.execute("SELECT * FROM log")
         for row in cursor:
             self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
 
