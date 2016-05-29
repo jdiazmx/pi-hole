@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS unformatted_domains (
 
 CREATE TABLE IF NOT EXISTS lists (
   id INTEGER PRIMARY KEY,
-  url TEXT,
+  uri TEXT,
   date DATETIME
 );
 
