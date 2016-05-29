@@ -1,6 +1,10 @@
 CREATE TABLE IF NOT EXISTS ad_domains (
+  domain TEXT
+);
+
+CREATE TABLE IF NOT EXISTS unformatted_domains (
   domain TEXT,
-  list INTEGER
+  list_id INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS lists (
