@@ -73,12 +73,28 @@ class List:
     def __init__(self, uri="", date=datetime.now()):
         self.uri = uri
         self.date = date
+        self.domains = None
+
+    def get_domains(self):
+        if self.domains is None:
+            database = connect()
+            cursor = database.cursor()
+
+            # Get domains
+            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE url=?)", self.uri)
+            self.domains = []
+            for row in cursor:
+                self.domains.append(row[0])
+
+            database.close()
+        return self.domains
 
     def clean(self):
         database = connect()
         cursor = database.cursor()
 
         cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE url=?)", self.uri)
+        database.close()
 
 
 class Query:
@@ -115,5 +131,4 @@ class Pihole:
         for row in cursor:
             self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
 
-        # Close database
         database.close()
