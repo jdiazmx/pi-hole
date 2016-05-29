@@ -82,7 +82,7 @@ class List:
             cursor = database.cursor()
 
             # Get domains
-            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE url=?)", self.uri)
+            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", self.uri)
             self.domains = []
             for row in cursor:
                 self.domains.append(row[0])
@@ -94,7 +94,7 @@ class List:
         database = connect()
         cursor = database.cursor()
 
-        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE url=?)", self.uri)
+        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", self.uri)
         database.close()
 
 
