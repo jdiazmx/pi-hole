@@ -58,10 +58,35 @@ local_vars = pihole_dir + "pihole.conf"
 # CLASSES
 
 
+# Database Schema:
+# ad_domains (domain TEXT, list INTEGER)
+# lists (id INTEGER PRIMARY KEY, url TEXT, date DATETIME)
+# log (time DATETIME, domain TEXT, client TEXT, record TEXT, blocked INTEGER)
+
+
+def connect():
+    return sqlite3.connect("/etc/pihole/pihole.db")
+
+
 class List:
     def __init__(self, url="", date=datetime.now()):
         self.url = url
         self.date = date
+        self.domains = None
+
+    def get_domains(self):
+        # Lazy init
+        if self.domains is None:
+            # Get domains
+            self.domains = []
+            database = connect()
+            cursor = database.cursor()
+
+            cursor.execute('SELECT domain FROM ad_domains WHERE list IN (SELECT id FROM lists WHERE url="{}")'.format(self.url))
+            for row in cursor:
+                self.domains.append(row[0])
+
+        return self.domains
 
 
 class Query:
@@ -80,23 +105,20 @@ class Pihole:
 
     def __init__(self):
         # Read in domains, lists, and log
-        database = sqlite3.connect("/etc/pihole/pihole.db")
+        database = connect()
         cursor = database.cursor()
 
         # Read in domains
-        # ad_domains (domain TEXT)
         cursor.execute("SELECT * FROM ad_domains")
         for row in cursor:
             self.domains.append(row[0])
 
         # Read in lists
-        # lists (url TEXT, date DATETIME)
         cursor.execute("SELECT * FROM lists")
         for row in cursor:
-            self.lists.append(List(row[0], row[1]))
+            self.lists.append(List(row[1], row[2]))
 
         # Read in log
-        # log (time DATETIME, domain TEXT, client TEXT, record TEXT, blocked INTEGER)
         for row in cursor:
             self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
 
