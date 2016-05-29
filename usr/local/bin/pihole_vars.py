@@ -76,6 +76,7 @@ class List:
         self.domains = None
 
     def get_domains(self):
+        # Lazy init
         if self.domains is None:
             database = connect()
             cursor = database.cursor()
@@ -130,5 +131,29 @@ class Pihole:
         cursor.execute("SELECT * FROM log")
         for row in cursor:
             self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
+
+        database.close()
+
+    def update_list(self, uri, domains, time):
+        # Update list time and clean
+        for i in self.lists:
+            if i.uri == uri:
+                i.date = time
+                i.clean()
+                break
+
+        database = connect()
+        cursor = database.cursor()
+
+        # Get list id
+        cursor.execute("SELECT id FROM lists WHERE uri=?", uri)
+        list_id = cursor.fetchone()
+
+        # Update list time on the database
+        cursor.execute("UPDATE lists SET date=? WHERE id=?", time, list_id)
+
+        # Add domains
+        for domain in domains:
+            cursor.execute("INSERT INTO unformatted_domains VALUES(?, ?)", domain, list_id)
 
         database.close()
