@@ -10,8 +10,10 @@
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 
-##############################
-######### IMPORTS ############
+
+# IMPORTS
+
+
 import pihole_vars
 from urllib.request import urlopen
 import os
@@ -20,13 +22,16 @@ import datetime
 import re
 from urllib.parse import urlparse
 
-##############################
-######## FUNCTIONS ###########
+
+# FUNCTIONS
+
+
 def local_calibration():
     if os.path.isfile(pihole_vars.pihole_conf):
         print("Local calibration requested.  Scanning...")
     if os.path.isfile(pihole_vars.custom_ad_list):
         print("Custom ad lists detected.  Scanning...")
+
 
 # Be a respectful netizen by only downloading the list if it is newer than the local file
 def transport_buffer(url, filename):
@@ -37,12 +42,12 @@ def transport_buffer(url, filename):
         last_modified = remote_file.headers["Last-Modified"]
 
         # adblock.gjtech.net returns zero, so this prevents it from diplaying that the pattern check was successful and inconclusive
-        if (last_modified == "0"):
+        if last_modified == "0":
             pass
         else:
             print ("  * Pattern check successful.")
 
-        # Convert time to epoch for easy comparision
+        # Convert time to epoch for easy comparison
         temp_time = time.strptime(last_modified, "%a, %d %b %Y %H:%M:%S %Z")
         remote_mtime = time.mktime(temp_time)
 
@@ -63,15 +68,16 @@ def transport_buffer(url, filename):
                 return True
         # If there isn't an existing file, it's a new list (or the user deleted the file)
         else:
-            return False
             print("  * New list detected.")
-    # Retun true to download the list since the mod time was not available
+            return False
+    # Return true to download the list since the mod time was not available
     # This will get the latest file because we don't know if the existing one is out-of-date or not
     except:
         print("  * Pattern check was inconclusive.")
         return True
 
-# Downloads the blocklists
+
+# Downloads the blacklists
 def gravity_well():
     # For each URL in the sources list
     for idx, url in enumerate(pihole_vars.sources):
@@ -91,15 +97,16 @@ def gravity_well():
             pattern_check = transport_buffer(url, filename)
             # If there was not a timestamp from the server, just let the user know and download the list anyway
             # If it does have a timestamp and thus is older than what is found online, download the list
-            if (pattern_check == True) or (pattern_check == None):
+            if pattern_check or pattern_check is None:
                 print("  * Downloading...")
                 print("")
-            # Otherwise, do not download so we can respect the list maintiner's bandwidth
-            elif pattern_check == False:
+            # Otherwise, do not download so we can respect the list maintainer's bandwidth
+            elif not pattern_check:
                 print("  * Skipping...")
                 print("")
 
-# Finds and aggregats all of the ad list files
+
+# Finds and aggregates all of the ad list files
 def collapse():
     print("Aggregating list of domains...")
     with open(pihole_vars.matter, "w") as outfile:
@@ -108,12 +115,14 @@ def collapse():
                 with open(f, "r") as infile:
                     outfile.write(infile.read())
 
+
 # Line count to display quantity of domains to the user
 def particle_density(filename):
     with open(filename) as f:
         for i, l in enumerate(f):
             pass
     return i + 1
+
 
 def matter_and_light():
     print("Getting just the domain names...")
@@ -132,12 +141,13 @@ def matter_and_light():
             elif "#" in line[0]:
                 pass
             # Also print the second field if the line starts with 127.0.0.1
-            elif (line[0] == "127.0.0.1"):
+            elif line[0] == "127.0.0.1":
                 and_light.write("%s\n" % line[1])
             # After all that, write the first field, which should be the domain name
             else:
                 and_light.write("%s\n" % line[0])
     print(str(particle_density(pihole_vars.matter)) + " domains exist before refinement.")
+
 
 def event_horizon():
     print("Sorting and removing duplicates...")
@@ -156,6 +166,7 @@ def event_horizon():
     outfile.writelines(sorted(lines_seen))
     print(str(particle_density(pihole_vars.event_horizon)) + " domains trapped in the event horizon.")
 
+
 def assimilate():
     # Your technological distinctiveness will be added to our own
     # Your domains will adapt to service us
@@ -169,7 +180,7 @@ def assimilate():
             # Prepend each line with the Pi-hole's IP address and a space
             ad_list.write(pihole_vars.pihole_ip + " " + line)
 
-# Download the blocklists
+# Download the blacklists
 gravity_well()
 
 # Find all of the downloaded lists
