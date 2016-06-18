@@ -87,7 +87,6 @@ class List:
             for row in cursor:
                 self.domains.append(row[0])
 
-            database.commit()
             database.close()
         return self.domains
 
@@ -138,7 +137,6 @@ class Pihole:
         for row in cursor:
             self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
 
-        database.commit()
         database.close()
 
     def update_list(self, uri, domains, time):
