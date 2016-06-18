@@ -130,7 +130,7 @@ class Pihole:
         # Read in lists
         cursor.execute("SELECT * FROM lists")
         for row in cursor:
-            self.lists.append(List(row[1], row[2]))
+            self.lists.append(List(row[1], datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')))
 
         # Read in log
         cursor.execute("SELECT * FROM log")
