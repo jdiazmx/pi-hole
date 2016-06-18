@@ -26,25 +26,40 @@ pihole = pihole_vars.Pihole()
 
 # Downloads a list
 def download_list(list):
+    # Clean old list
+    list.clean()
+
+    # Get new list
+    r = requests.get(list.get_uri(), timeout=5)
+
+    # Parse domains into list (removes comments)
+    domains = [domain.split(" ")[1] for domain in r.text.splitlines() if not domain.strip().startswith("#") and len(domain.strip()) > 0]
+
+    # Get Last-Modified
+    mod = datetime.now()
+    if "Last-Modified" in r.headers:
+        mod = datetime(*eut.parsedate(r.headers["Last-Modified"])[:6])
+
+    pihole.update_list(list.get_uri(), domains, mod)
+
     print(" Downloaded!")
 
 
 # Check for updates
 for l in pihole.lists:
     # Get domain for output
-    domain = '{uri.netloc}'.format(uri=urlparse(l.uri))
+    domain = '{uri.netloc}'.format(uri=urlparse(l.get_uri()))
     print("Initializing pattern buffer for " + domain + "...", end="")
 
     # Check if the list has been downloaded
-    domains = l.get_domains()
-    if len(domains) == 0:
+    if len(l.get_domains()) == 0:
         # Must be a new list
         print(" New list, downloading...", end="")
         download_list(l)
     # Check if it needs updating
     else:
         # Get request
-        remote = requests.head(l.uri, timeout=5)
+        remote = requests.head(l.get_uri(), timeout=5)
 
         # Check for Last-Modified header
         if "Last-Modified" in remote.headers and len(remote.headers["Last-Modified"]) > 0:
