@@ -16,6 +16,7 @@
 
 from datetime import datetime
 import sqlite3
+import os
 
 
 # VARIABLES
@@ -44,6 +45,7 @@ blacklist = pihole_dir + "blacklist.txt"
 whitelist = pihole_dir + "whitelist.txt"
 domains_extension = "domains"
 pihole_ip = "@PIHOLEIP@"
+pihole_ipv6 = "@PIHOLEIPV6@"
 
 # Variables for various steps of aggregating domains from multiple sources
 matter = pihole_dir + basename + ".0.matterandlight.txt"
@@ -218,3 +220,14 @@ class Pihole:
 
         database.commit()
         database.close()
+
+    def export_hosts(self):
+        # Check for IPv6
+        useIPv6 = os.path.isfile(pihole_dir + ".useIPv6")
+
+        with open(ad_list, 'w') as file:
+            for domain in self.domains:
+                file.write(pihole_ip + " " + domain + "\n")
+
+                if useIPv6:
+                    file.write(pihole_ipv6 + " " + domain + "\n")

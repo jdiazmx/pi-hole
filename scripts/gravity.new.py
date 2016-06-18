@@ -24,7 +24,9 @@ import email.utils as eut
 # SCRIPT
 
 
+print("Loading Pi-hole instance...")
 pihole = pihole_vars.Pihole()
+num_pre_formatted = 0
 
 
 # Downloads a list
@@ -37,6 +39,8 @@ def download_list(list):
 
     # Parse domains into list (removes comments)
     domains = [domain.split(" ")[1] for domain in r.text.splitlines() if not domain.strip().startswith("#") and len(domain.strip()) > 0]
+    global num_pre_formatted
+    num_pre_formatted += len(domains)
 
     # Get Last-Modified
     mod = datetime.now()
@@ -81,4 +85,8 @@ for l in pihole.lists:
             download_list(l)
 
 # Condense into a formatted list of domains
+print("Formatting " + num_pre_formatted + " domains and removing duplicates...")
 pihole.compile_list()
+print("Exporting " + len(pihole.get_domains()) + " domains...")
+pihole.export_hosts()
+print("Reloading services...")
