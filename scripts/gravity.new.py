@@ -42,19 +42,19 @@ def download_list(list):
 
     pihole.update_list(list.get_uri(), domains, mod)
 
-    print(" Downloaded!")
+    print("  * Downloaded!")
 
 
 # Check for updates
 for l in pihole.lists:
     # Get domain for output
     domain = '{uri.netloc}'.format(uri=urlparse(l.get_uri()))
-    print("Initializing pattern buffer for " + domain + "...", end="")
+    print("Initializing pattern buffer for " + domain + "...")
 
     # Check if the list has been downloaded
     if len(l.get_domains()) == 0:
         # Must be a new list
-        print(" New list, downloading...", end="")
+        print("  * New list, downloading...")
         download_list(l)
     # Check if it needs updating
     else:
@@ -67,13 +67,13 @@ for l in pihole.lists:
 
             # If the remote date is newer than the stored date
             if remote_date > l.get_date():
-                print(" Update found, downloading...", end="")
+                print("  * Update found, downloading...")
                 download_list(l)
             else:
-                print(" No update!")
+                print("  * No update!")
                 pass
         else:
             # If we don't know the date, just download it
-            print(" No modification date found, downloading...", end="")
+            print("  * No modification date found, downloading...")
             download_list(l)
 
