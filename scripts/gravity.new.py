@@ -85,6 +85,19 @@ for l in pihole.lists:
 # Condense into a formatted list of domains
 print("Formatting " + str(num_pre_formatted) + " domains and removing duplicates...")
 pihole.compile_list()
+
+# Export domains to hosts file
 print("Exporting " + str(len(pihole.get_domains())) + " domains...")
 pihole.export_hosts()
+
+# Whitelist adlist uris
+print("Whitelisting x adlist sources...")
+
+# Whitelist and Blacklist domains
+print("Running whitelist script...")
+print("  * Whitelisted x domains!")
+print("Running blacklist script...")
+print("  * Blacklisted x domains!")
+
+# Reload dnsmasq to apply changes
 print("Reloading dnsmasq...")
