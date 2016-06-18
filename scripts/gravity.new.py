@@ -81,4 +81,4 @@ for l in pihole.lists:
             download_list(l)
 
 # Condense into a formatted list of domains
-pihole.compile_lists()
+pihole.compile_list()

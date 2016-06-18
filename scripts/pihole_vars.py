@@ -202,8 +202,9 @@ class Pihole:
         database.commit()
         database.close()
 
-    def compile_lists(self):
-        domains = list(set([item for list in self.lists for item in list.get_domains()]))
+    def compile_list(self):
+        # Update local domain list
+        self.domains = list(set([item for list in self.lists for item in list.get_domains()]))
 
         database = connect()
         cursor = database.cursor()
@@ -212,7 +213,7 @@ class Pihole:
         cursor.execute("DELETE FROM ad_domains")
 
         # Insert new domains
-        for domain in domains:
+        for domain in self.domains:
             cursor.execute("INSERT INTO ad_domains VALUES(?)", (domain,))
 
         database.commit()
