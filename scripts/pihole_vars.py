@@ -105,9 +105,6 @@ class List:
     def set_date(self, date):
         self._date = date
 
-    def set_uri(self, uri):
-        self._uri = uri
-
     def clean(self):
         database = connect()
         cursor = database.cursor()
@@ -133,7 +130,20 @@ class Pihole:
     log = []
 
     def __init__(self):
-        # Read in domains, lists, and log
+        self.reload_domains()
+        self.reload_lists()
+        self.reload_log()
+
+    def get_domains(self):
+        return self.domains
+
+    def get_lists(self):
+        return self.lists
+
+    def get_log(self):
+        return self.log
+
+    def reload_domains(self):
         database = connect()
         cursor = database.cursor()
 
@@ -142,10 +152,22 @@ class Pihole:
         for row in cursor:
             self.domains.append(row[0])
 
+        database.close()
+
+    def reload_lists(self):
+        database = connect()
+        cursor = database.cursor()
+
         # Read in lists
         cursor.execute("SELECT * FROM lists")
         for row in cursor:
             self.lists.append(List(row[1], datetime.strptime(row[2], time_format)))
+
+        database.close()
+
+    def reload_log(self):
+        database = connect()
+        cursor = database.cursor()
 
         # Read in log
         cursor.execute("SELECT * FROM log")
