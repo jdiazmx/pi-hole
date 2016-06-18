@@ -65,39 +65,54 @@ local_vars = pihole_dir + "pihole.conf"
 # log (time DATETIME, domain TEXT, client TEXT, record TEXT, blocked INTEGER)
 
 
+time_format = '%Y-%m-%d %H:%M:%S'
+
+
 def connect():
     return sqlite3.connect("/etc/pihole/pihole.db")
 
 
 class List:
     def __init__(self, uri="", date=datetime.now()):
-        self.uri = uri
-        self.date = date
-        self.domains = None
+        self._uri = uri
+        self._date = date
+        self._domains = None
 
     def get_domains(self):
         # Lazy init
-        if self.domains is None:
+        if self._domains is None:
             database = connect()
             cursor = database.cursor()
 
             # Get domains
-            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self.uri,))
-            self.domains = []
+            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self._uri,))
+            self._domains = []
             for row in cursor:
-                self.domains.append(row[0])
+                self._domains.append(row[0])
 
             database.close()
-        return self.domains
+        return self._domains
 
     def get_date(self):
-        return self.date
+        return self._date
+
+    def get_uri(self):
+        return self._uri
+
+    def set_domains(self, domains):
+        self._domains = domains
+
+    def set_date(self, date):
+        self._date = date
+
+    def set_uri(self, uri):
+        self._uri = uri
 
     def clean(self):
         database = connect()
         cursor = database.cursor()
 
-        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self.uri,))
+        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self._uri,))
 
         database.commit()
         database.close()
@@ -130,7 +145,7 @@ class Pihole:
         # Read in lists
         cursor.execute("SELECT * FROM lists")
         for row in cursor:
-            self.lists.append(List(row[1], datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')))
+            self.lists.append(List(row[1], datetime.strptime(row[2], time_format)))
 
         # Read in log
         cursor.execute("SELECT * FROM log")
@@ -140,11 +155,12 @@ class Pihole:
         database.close()
 
     def update_list(self, uri, domains, time):
-        # Update list time and clean
+        # Update list and clean
         for i in self.lists:
-            if i.uri == uri:
-                i.date = time
+            if i.get_uri() == uri:
+                i.set_date(time)
                 i.clean()
+                i.set_domains(domains)
                 break
 
         database = connect()
@@ -152,10 +168,10 @@ class Pihole:
 
         # Get list id
         cursor.execute("SELECT id FROM lists WHERE uri=?", (uri,))
-        list_id = cursor.fetchone()
+        list_id = cursor.fetchone()[0]
 
         # Update list time on the database
-        cursor.execute("UPDATE lists SET date=? WHERE id=?", (time, list_id))
+        cursor.execute("UPDATE lists SET date=? WHERE id=?", (time.strftime(time_format), list_id))
 
         # Add domains
         for domain in domains:
