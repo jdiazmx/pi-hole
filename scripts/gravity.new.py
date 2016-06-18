@@ -13,13 +13,16 @@
 
 # IMPORTS
 
+
 import pihole_vars
 from urllib.parse import urlparse
 import requests
 from datetime import datetime
 import email.utils as eut
 
+
 # SCRIPT
+
 
 pihole = pihole_vars.Pihole()
 
@@ -77,3 +80,5 @@ for l in pihole.lists:
             print("  * No modification date found, downloading...")
             download_list(l)
 
+# Condense into a formatted list of domains
+pihole.compile_lists()
