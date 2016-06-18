@@ -30,7 +30,7 @@ num_pre_formatted = 0
 
 
 # Downloads a list
-def download_list(list):
+def download_list(list, mod):
     # Clean old list
     list.clean()
 
@@ -38,14 +38,10 @@ def download_list(list):
     r = requests.get(list.get_uri(), timeout=5)
 
     # Parse domains into list (removes comments)
-    domains = [domain.split(" ")[1] for domain in r.text.splitlines() if not domain.strip().startswith("#") and len(domain.strip()) > 0]
+    domains = [domain.split(" ")[1] for domain in r.text.splitlines() if
+               not domain.strip().startswith("#") and len(domain.strip()) > 0]
     global num_pre_formatted
     num_pre_formatted += len(domains)
-
-    # Get Last-Modified
-    mod = datetime.now()
-    if "Last-Modified" in r.headers:
-        mod = datetime(*eut.parsedate(r.headers["Last-Modified"])[:6])
 
     pihole.update_list(list.get_uri(), domains, mod)
 
@@ -62,31 +58,33 @@ for l in pihole.lists:
     if len(l.get_domains()) == 0:
         # Must be a new list
         print("  * New list, downloading...")
-        download_list(l)
+        download_list(l, datetime.now())
     # Check if it needs updating
     else:
         # Get request
         remote = requests.head(l.get_uri(), timeout=5)
 
         # Check for Last-Modified header
-        if "Last-Modified" in remote.headers and len(remote.headers["Last-Modified"]) > 0:
+        if "Last-Modified" in remote.headers and \
+                len(remote.headers["Last-Modified"]) > 0 and \
+                remote.headers["Last-Modified"] != '0':
             remote_date = datetime(*eut.parsedate(remote.headers["Last-Modified"])[:6])
 
             # If the remote date is newer than the stored date
             if remote_date > l.get_date():
                 print("  * Update found, downloading...")
-                download_list(l)
+                download_list(l, remote_date)
             else:
                 print("  * No update!")
                 pass
         else:
             # If we don't know the date, just download it
             print("  * No modification date found, downloading...")
-            download_list(l)
+            download_list(l, datetime.now())
 
 # Condense into a formatted list of domains
-print("Formatting " + num_pre_formatted + " domains and removing duplicates...")
+print("Formatting " + str(num_pre_formatted) + " domains and removing duplicates...")
 pihole.compile_list()
-print("Exporting " + len(pihole.get_domains()) + " domains...")
+print("Exporting " + str(len(pihole.get_domains())) + " domains...")
 pihole.export_hosts()
-print("Reloading services...")
+print("Reloading dnsmasq...")
