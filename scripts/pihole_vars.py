@@ -82,7 +82,7 @@ class List:
             cursor = database.cursor()
 
             # Get domains
-            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", self.uri)
+            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self.uri,))
             self.domains = []
             for row in cursor:
                 self.domains.append(row[0])
@@ -97,7 +97,7 @@ class List:
         database = connect()
         cursor = database.cursor()
 
-        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", self.uri)
+        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self.uri,))
 
         database.commit()
         database.close()
@@ -151,15 +151,15 @@ class Pihole:
         cursor = database.cursor()
 
         # Get list id
-        cursor.execute("SELECT id FROM lists WHERE uri=?", uri)
+        cursor.execute("SELECT id FROM lists WHERE uri=?", (uri,))
         list_id = cursor.fetchone()
 
         # Update list time on the database
-        cursor.execute("UPDATE lists SET date=? WHERE id=?", time, list_id)
+        cursor.execute("UPDATE lists SET date=? WHERE id=?", (time, list_id))
 
         # Add domains
         for domain in domains:
-            cursor.execute("INSERT INTO unformatted_domains VALUES(?, ?)", domain, list_id)
+            cursor.execute("INSERT INTO unformatted_domains VALUES(?, ?)", (domain, list_id))
 
         database.commit()
         database.close()
