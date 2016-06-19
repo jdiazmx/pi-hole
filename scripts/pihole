@@ -10,21 +10,26 @@
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 
-##############################
-######### IMPORTS ############
+
+# IMPORTS
+
+
 import sys
 import argparse
 import os
 import subprocess
 import pihole_vars
 
-##############################
-######## FUNCTIONS ###########
+
+# FUNCTIONS
+
+
 def usage():
     return """
 (c) 2014-2016 by Jacob Salmela.  http://jacobsalmela.com
 Control Pi-hole from a single command
 """
+
 
 def verboseOutput(*args):
     if verbose:
@@ -32,6 +37,7 @@ def verboseOutput(*args):
             print("Verbose:", args)
         except:
             pass
+
 
 def update():
     pass
