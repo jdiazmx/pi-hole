@@ -24,8 +24,6 @@ import email.utils as eut
 # SCRIPT
 
 
-print("Loading Pi-hole instance...")
-pihole = pihole_vars.Pihole()
 num_pre_formatted = 0
 
 
@@ -48,56 +46,63 @@ def download_list(list, mod):
     print("  * Downloaded!")
 
 
-# Check for updates
-for l in pihole.lists:
-    # Get domain for output
-    domain = '{uri.netloc}'.format(uri=urlparse(l.get_uri()))
-    print("Initializing pattern buffer for " + domain + "...")
+def main():
+    print("Loading Pi-hole instance...")
+    pihole = pihole_vars.Pihole()
 
-    # Check if the list has been downloaded
-    if len(l.get_domains()) == 0:
-        # Must be a new list
-        print("  * New list, downloading...")
-        download_list(l, datetime.now())
-    # Check if it needs updating
-    else:
-        # Get request
-        remote = requests.head(l.get_uri(), timeout=5)
+    # Check for updates
+    for l in pihole.lists:
+        # Get domain for output
+        domain = '{uri.netloc}'.format(uri=urlparse(l.get_uri()))
+        print("Initializing pattern buffer for " + domain + "...")
 
-        # Check for Last-Modified header
-        if "Last-Modified" in remote.headers and \
-                len(remote.headers["Last-Modified"]) > 0 and \
-                remote.headers["Last-Modified"] != '0':
-            remote_date = datetime(*eut.parsedate(remote.headers["Last-Modified"])[:6])
-
-            # If the remote date is newer than the stored date
-            if remote_date > l.get_date():
-                print("  * Update found, downloading...")
-                download_list(l, remote_date)
-            else:
-                print("  * No update!")
-                pass
-        else:
-            # If we don't know the date, just download it
-            print("  * No modification date found, downloading...")
+        # Check if the list has been downloaded
+        if len(l.get_domains()) == 0:
+            # Must be a new list
+            print("  * New list, downloading...")
             download_list(l, datetime.now())
+        # Check if it needs updating
+        else:
+            # Get request
+            remote = requests.head(l.get_uri(), timeout=5)
 
-# Condense into a formatted list of domains
-print("Formatting " + str(num_pre_formatted) + " domains and removing duplicates...")
-pihole.compile_list()
+            # Check for Last-Modified header
+            if "Last-Modified" in remote.headers and \
+                    len(remote.headers["Last-Modified"]) > 0 and \
+                    remote.headers["Last-Modified"] != '0':
+                remote_date = datetime(*eut.parsedate(remote.headers["Last-Modified"])[:6])
 
-# Export domains to hosts file
-print("Exporting " + str(len(pihole.get_domains())) + " domains...")
-pihole.export_hosts()
+                # If the remote date is newer than the stored date
+                if remote_date > l.get_date():
+                    print("  * Update found, downloading...")
+                    download_list(l, remote_date)
+                else:
+                    print("  * No update!")
+                    pass
+            else:
+                # If we don't know the date, just download it
+                print("  * No modification date found, downloading...")
+                download_list(l, datetime.now())
 
-# Whitelist adlist uris
-print("Whitelisting x adlist sources...")
+    # Condense into a formatted list of domains
+    print("Formatting " + str(num_pre_formatted) + " domains and removing duplicates...")
+    pihole.compile_list()
 
-# Whitelist and Blacklist domains
-print("Running whitelist script...")
-print("  * Whitelisted x domains!")
-print("Running blacklist script...")
-print("  * Blacklisted x domains!")
+    # Export domains to hosts file
+    print("Exporting " + str(len(pihole.get_domains())) + " domains...")
+    pihole.export_hosts()
 
-# Reload dnsmasq to apply changes
-print("Reloading dnsmasq...")
+    # Whitelist adlist uris
+    print("Whitelisting x adlist sources...")
+
+    # Whitelist and Blacklist domains
+    print("Running whitelist script...")
+    print("  * Whitelisted x domains!")
+    print("Running blacklist script...")
+    print("  * Blacklisted x domains!")
+
+    # Reload dnsmasq to apply changes
+    print("Reloading dnsmasq...")
+
+if __name__ == "__main__":
+    main()
