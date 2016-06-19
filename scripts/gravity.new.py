@@ -24,11 +24,8 @@ import email.utils as eut
 # SCRIPT
 
 
-num_pre_formatted = 0
-
-
 # Downloads a list
-def download_list(list, mod):
+def download_list(list, mod, pihole):
     # Clean old list
     list.clean()
 
@@ -38,16 +35,17 @@ def download_list(list, mod):
     # Parse domains into list (removes comments)
     domains = [domain.split(" ")[1] for domain in r.text.splitlines() if
                not domain.strip().startswith("#") and len(domain.strip()) > 0]
-    global num_pre_formatted
-    num_pre_formatted += len(domains)
 
     pihole.update_list(list.get_uri(), domains, mod)
 
     print("  * Downloaded!")
 
+    return len(domains)
+
 
 def main():
     print("Loading Pi-hole instance...")
+    num_pre_formatted = 0
     pihole = pihole_vars.Pihole()
 
     # Check for updates
@@ -60,7 +58,7 @@ def main():
         if len(l.get_domains()) == 0:
             # Must be a new list
             print("  * New list, downloading...")
-            download_list(l, datetime.now())
+            num_pre_formatted += download_list(l, datetime.now(), pihole)
         # Check if it needs updating
         else:
             # Get request
@@ -75,14 +73,14 @@ def main():
                 # If the remote date is newer than the stored date
                 if remote_date > l.get_date():
                     print("  * Update found, downloading...")
-                    download_list(l, remote_date)
+                    num_pre_formatted += download_list(l, remote_date, pihole)
                 else:
                     print("  * No update!")
                     pass
             else:
                 # If we don't know the date, just download it
                 print("  * No modification date found, downloading...")
-                download_list(l, datetime.now())
+                num_pre_formatted += download_list(l, datetime.now(), pihole)
 
     # Condense into a formatted list of domains
     print("Formatting " + str(num_pre_formatted) + " domains and removing duplicates...")
