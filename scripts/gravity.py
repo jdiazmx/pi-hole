@@ -34,7 +34,7 @@ def download_list(list, mod, pihole):
     r = requests.get(list.get_uri(), timeout=5)
 
     # Parse domains into list (removes comments)
-    domains = [domain.split(" ")[1] for domain in r.text.splitlines() if
+    domains = [domain.split()[1] for domain in r.text.splitlines() if
                not domain.strip().startswith("#") and len(domain.strip()) > 0]
 
     pihole.update_list(list.get_uri(), domains, mod)
