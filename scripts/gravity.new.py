@@ -103,5 +103,6 @@ def main():
     # Reload dnsmasq to apply changes
     print("Reloading dnsmasq...")
 
+
 if __name__ == "__main__":
     main()
