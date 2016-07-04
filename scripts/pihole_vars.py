@@ -39,6 +39,7 @@ global basename, pihole_dir, ad_list, custom_ad_list, list_prefix, blacklist, wh
 # File path variables
 basename = "pihole"
 pihole_dir = "/etc/" + basename + "/"
+pihole_database = pihole_dir + "pihole.db"
 ad_list = pihole_dir + "gravity.list"
 custom_ad_list = pihole_dir + "ad_list.custom"
 list_prefix = "list."
@@ -72,7 +73,7 @@ time_format = '%Y-%m-%d %H:%M:%S'
 
 
 def connect():
-    return sqlite3.connect("/etc/pihole/pihole.db")
+    return sqlite3.connect(pihole_database)
 
 
 class List:
