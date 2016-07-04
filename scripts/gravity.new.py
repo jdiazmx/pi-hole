@@ -76,6 +76,7 @@ def main():
                     num_pre_formatted += download_list(l, remote_date, pihole)
                 else:
                     print("  * No update!")
+                    num_pre_formatted += len(l.get_domains())
                     pass
             else:
                 # If we don't know the date, just download it
