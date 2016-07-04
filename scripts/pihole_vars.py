@@ -25,14 +25,14 @@ import socket
 
 # URLs of block lists to use
 global sources
-sources = ["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
-           "http://adblock.gjtech.net/?format=unix-hosts",
-           "http://mirror1.malwaredomains.com/files/justdomains",
-           "http://sysctl.org/cameleon/hosts",
-           "https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist",
-           "https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt",
-           "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",
-           "http://hosts-file.net/ad_servers.txt"]
+sources = ["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",  # ETag
+           "http://adblock.gjtech.net/?format=unix-hosts",  # Last-Modified
+           "http://mirror1.malwaredomains.com/files/justdomains",  # ETag + Last-Modified
+           "http://sysctl.org/cameleon/hosts",  # ETag + Last-Modified
+           "https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist",  # Last-Modified
+           "https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt",  # ETag + Last-Modified
+           "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",  # ETag + Last-Modified
+           "https://hosts-file.net/ad_servers.txt"]  # ETag + Last-Modified
 
 global basename, pihole_dir, ad_list, custom_ad_list, list_prefix, blacklist, whitelist, domains_extension, matter, and_light, event_horizon, accretion_disc, local_vars
 
