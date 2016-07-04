@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 import requests
 from datetime import datetime
 import email.utils as eut
+from subprocess import check_output, CalledProcessError, call
 
 
 # SCRIPT
@@ -102,6 +103,12 @@ def main():
 
     # Reload dnsmasq to apply changes
     print("Reloading dnsmasq...")
+    try:
+        pid = int(check_output(["pidof", "-s", "dnsmasq"]))
+        call(["killall", "-s", "HUP", "dnsmasq"])
+    except CalledProcessError:
+        # Must not be running
+        call(["service", "dnsmasq", "start"])
 
 
 if __name__ == "__main__":
