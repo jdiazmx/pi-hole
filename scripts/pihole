@@ -19,6 +19,15 @@ import argparse
 import os
 import subprocess
 import pihole_vars
+import gravity
+import updatePihole
+import updateDashboard
+import whitelist
+import blacklist
+import debug
+import flush
+import chronometer
+import setupLCD
 
 
 # FUNCTIONS
@@ -34,40 +43,41 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         return ', '.join(action.option_strings) + ' ' + args_string
 
 
-def help(context):
+def choice_help(context):
     pass
 
 
-def update():
+def choice_update():
+    updatePihole.main()
+    updateDashboard.main()
+
+
+def choice_uninstall():
     pass
 
 
-def uninstall():
-    pass
+def choice_gravity():
+    gravity.main()
 
 
-def gravity():
-    pass
+def choice_whitelist(domains):
+    whitelist.main()
 
 
-def whitelist(domains):
-    pass
+def choice_blacklist(domains):
+    blacklist.main()
 
 
-def blacklist(domains):
-    pass
+def choice_flush():
+    flush.main()
 
 
-def flush():
-    pass
+def choice_lcd():
+    setupLCD.main()
 
 
-def lcd():
-    pass
-
-
-def chronometer():
-    pass
+def choice_chronometer():
+    chronometer.main()
 
 
 def main():
@@ -115,23 +125,23 @@ def main():
 
     # Pi-hole Computer Access Retrieval System
     if options.help is not None:
-        help(options.help)
+        choice_help(options.help)
     elif options.update:
-        update()
+        choice_update()
     elif options.uninstall:
-        uninstall()
+        choice_uninstall()
     elif options.gravity:
-        gravity()
+        choice_gravity()
     elif options.whitelist is not None:
-        whitelist(options.whitelist)
+        choice_whitelist(options.whitelist)
     elif options.blacklist is not None:
-        blacklist(options.blacklist)
+        choice_blacklist(options.blacklist)
     elif options.flush:
-        flush()
+        choice_flush()
     elif options.lcd():
-        lcd()
+        choice_lcd()
     elif options.chronometer:
-        chronometer()
+        choice_chronometer()
 
 
 if __name__ == "__main__":
