@@ -121,7 +121,7 @@ def main():
     # Otherwise, print the help
     else:
         parser.print_help()
-        exit(1)
+        exit()
 
     # Pi-hole Computer Access Retrieval System
     if options.help is not None:
