@@ -18,6 +18,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+# Docopt
+"""
+Start up Pi-hole's ad-blocking gravity
+
+Usage: pihole gravity
+"""
+
+
 # IMPORTS
 
 
@@ -27,7 +35,7 @@ import requests
 from datetime import datetime
 import email.utils as eut
 from subprocess import check_output, CalledProcessError, call
-import argparse
+from docopt import docopt
 
 
 # SCRIPT
@@ -52,7 +60,12 @@ def download_list(list, mod, pihole):
     return len(domains)
 
 
-def main():
+def main(argv):
+    if argv is None:
+        args = docopt(__doc__)
+    else:
+        args = docopt(__doc__, argv=argv)
+
     print("Loading Pi-hole instance...")
     num_pre_formatted = 0
     pihole = pihole_vars.Pihole()
@@ -120,4 +133,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(None)

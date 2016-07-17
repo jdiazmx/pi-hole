@@ -42,26 +42,19 @@ sources = ["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",  
            "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",  # ETag + Last-Modified
            "https://hosts-file.net/ad_servers.txt"]  # ETag + Last-Modified
 
-global basename, pihole_dir, ad_list, custom_ad_list, list_prefix, blacklist, whitelist, domains_extension, matter, and_light, event_horizon, accretion_disc, local_vars
+global basename, pihole_dir, version, ad_list, custom_ad_list, blacklist, whitelist, pihole_ip, pihole_ipv6, local_vars
 
 # File path variables
 basename = "pihole"
 pihole_dir = "/etc/" + basename + "/"
-pihole_database = pihole_dir + "pihole.db"
+version = "Pi-hole 3.0.0"
+database = pihole_dir + "pihole.db"
 ad_list = pihole_dir + "gravity.list"
 custom_ad_list = pihole_dir + "ad_list.custom"
-list_prefix = "list."
 blacklist = pihole_dir + "blacklist.txt"
 whitelist = pihole_dir + "whitelist.txt"
-domains_extension = "domains"
 pihole_ip = "@PIHOLEIP@"
 pihole_ipv6 = "@PIHOLEIPV6@"
-
-# Variables for various steps of aggregating domains from multiple sources
-matter = pihole_dir + basename + ".0.matterandlight.txt"
-and_light = pihole_dir + basename + ".1.supernova.txt"
-event_horizon = pihole_dir + basename + ".2.eventHorizon.txt"
-accretion_disc = pihole_dir + basename + ".3.accretionDisc.txt"
 
 # User-defined custom settings (optional)
 local_vars = pihole_dir + "pihole.conf"
@@ -91,7 +84,7 @@ time_format = '%Y-%m-%d %H:%M:%S'
 
 
 def connect():
-    return sqlite3.connect(pihole_database)
+    return sqlite3.connect(database)
 
 
 class List:

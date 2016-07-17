@@ -18,147 +18,70 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+# DOCOPT
+
+
+"""
+Usage: pihole <command> [<args>...]
+
+Commands:
+    gravity     Starts up Pi-hole's ad-blocking gravity
+    whitelist   Whitelist domain(s)
+    blacklist   Blacklist domain(s)
+    updateCore  Update Pi-hole Core
+    updateWeb   Update Pi-hole Web Interface
+    flush       Flush the DNS log
+    debug       Generate a new debug log
+    help        Show corresponding help
+    uninstall   Uninstall Pi-hole ;(
+
+See 'pihole help [command]' for more information on a specific command
+"""
+
+
 # IMPORTS
 
 
-import argparse
 import pihole_vars
-import gravity
-import updatePihole
-import updateDashboard
-import whitelist
-import blacklist
-import debug
-import flush
-import chronometer
-import setupLCD
+from docopt import docopt
+import os
 
 
-# FUNCTIONS
-
-
-def choice_help(context):
-    pass
-
-
-def choice_update():
-    updatePihole.main()
-    updateDashboard.main()
-
-
-def choice_uninstall():
-    pass
-
-
-def choice_gravity():
-    gravity.main()
-
-
-def choice_whitelist():
-    whitelist.main()
-
-
-def choice_blacklist():
-    blacklist.main()
-
-
-def choice_flush():
-    flush.main()
-
-
-def choice_lcd():
-    setupLCD.main()
-
-
-def choice_chronometer():
-    chronometer.main()
+# SCRIPT
 
 
 def main():
-    # Sub-space scanners to parse arguments
-    parser = argparse.ArgumentParser(
-        description="Control Pi-hole from a single command",
-        epilog="(c) 2014-2016 by Jacob Salmela.  http://jacobsalmela.com",
-        formatter_class=lambda prog: pihole_vars.CustomHelpFormatter(prog),
-        add_help=False
-    )
+    args = docopt(__doc__, version=pihole_vars.version, options_first=True)
+    print("Global Args:\n" + str(args))
+    print("Command Args:")
 
-    # Sub commands
-    subparsers = parser.add_subparsers()
-    whitelist_parser = subparsers.add_parser("whitelist", help="Whitelist one or more domains")
-    blacklist_parser = subparsers.add_parser("blacklist", help="Blacklist one or more domains")
-    whitelist_parser.set_defaults(func=choice_whitelist)
-    blacklist_parser.set_defaults(func=choice_blacklist)
+    com = args['<command>']
+    com_args = [com] + args["<args>"]
 
-    whitelist_parser.add_argument("domains", help="domain(s) to add or remove",
-                                  nargs="*", metavar="domain")
-    whitelist_group = whitelist_parser.add_mutually_exclusive_group()
-    whitelist_group.add_argument("-d", "--delete", help="Delete domain(s) from whitelist",
-                                 action="store_true")
-    whitelist_group.add_argument("-l", "--list", help="List domains in whitelist",
-                                 action="store_true")
-
-    blacklist_parser.add_argument("domains", help="domain(s) to add or remove",
-                                  nargs="*", metavar="domain")
-
-    # Simple commands
-    group = parser.add_mutually_exclusive_group()
-
-    group.add_argument("-h", "--help", help="show this help message and exit",
-                       action="store_true")
-    group.add_argument("-g", "--gravity", help="update the domain block list",
-                       action="store_true")
-    group.add_argument("-u", "--update", help="update Pi-hole and/ore the web interface",
-                       action="store_true")
-    group.add_argument("-f", "--flush", help="flush the log file",
-                       action="store_true")
-    group.add_argument("-d", "--debug", help="generate a debug log",
-                       action="store_true")
-    group.add_argument("-l", "--lcd", help="automatically set up an Adafruit 2.8\" TFT LCD",
-                       action="store_true")
-    group.add_argument("-c", "--chronometer", help="display real-time stats over SSH or on an LCD screen",
-                       action="store_true")
-    group.add_argument("--uninstall", help="uninstall Pi-hole ;(",
-                       action="store_true")
-
-    parser.print_help()
-    print("----------------------------------------------")
-    whitelist_parser.print_help()
-    print("----------------------------------------------")
-    print(whitelist_parser.parse_args(["-l", "example.com", "example2.com"]))
-    exit()
-    options = parser.parse_args()
-
-    # Make sure at least one option has been chosen
-    options_dict = vars(options)
-    for key in options_dict.keys():
-        if options_dict[key] not in [False, None]:
-            break
-    # Otherwise, print the help
-    else:
-        parser.print_help()
-        exit()
-
-    # Pi-hole Computer Access Retrieval System
-    if options.help:
-        parser.print_help()
-    elif options.update:
-        choice_update()
-    elif options.uninstall:
-        choice_uninstall()
-    elif options.gravity:
-        choice_gravity()
-    elif options.whitelist:
-        choice_whitelist()
-    elif options.blacklist:
-        choice_blacklist()
-    elif options.flush:
-        choice_flush()
-    elif options.lcd():
-        choice_lcd()
-    elif options.chronometer:
-        choice_chronometer()
-
+    if com == "gravity":
+        import gravity
+        gravity.main(com_args)
+    elif com == "whitelist":
+        import whitelist
+        whitelist.main(com_args)
+    elif com == "blacklist":
+        import blacklist
+        blacklist.main(com_args)
+    elif com == "updateCore":
+        import updateCore
+        updateCore.main(com_args)
+    elif com == "updateWeb":
+        import updateWeb
+        updateWeb.main(com_args)
+    elif com == "flush":
+        import flush
+        flush.main(com_args)
+    elif com == "debug":
+        import debug
+        debug.main(com_args)
+    elif com == "uninstall":
+        import uninstall
+        uninstall.main(com_args)
 
 if __name__ == "__main__":
     main()

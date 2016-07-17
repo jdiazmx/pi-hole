@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Jacob Salmela
 # Pi-hole: a DNS based ad-blocker [https://www.pi-hole.net]
 #
-# Blacklist domains to the gravity list
+# Uninstall Pi-hole ;(
 #
 # The Pi-Hole is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -18,25 +18,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-# DOCOPT
+# Docopt
 
 
 """
-Blacklist one or more domains to Pi-hole's ad-blocking gravity
+Uninstall Pi-hole ;(
 
-Usage:
-    pihole blacklist [-l]
-    pihole blacklist [-d] [-f] [-e] <domains>...
-
-Options:
-    -l --list           List the domains
-    -d --delete         Delete the domain(s)
-    -f --force          Force reload DNS, even if no changes have been made
-    -e --errors-only    Only output status codes
+Usage: pihole uninstall
 """
 
 
-# IMPORTS
+# IMPORT
 
 
 import pihole_vars

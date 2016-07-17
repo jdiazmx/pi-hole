@@ -18,18 +18,40 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+# DOCOPT
+
+
+"""
+Whitelist one or more domains from Pi-hole's ad-blocking gravity
+
+Usage:
+    pihole whitelist [-l]
+    pihole whitelist [-d] [-f] [-e] <domains>...
+
+Options:
+    -l --list           List the domains
+    -d --delete         Delete the domain(s)
+    -f --force          Force reload DNS, even if no changes have been made
+    -e --errors-only    Only output status codes
+"""
+
+
 # IMPORTS
 
 
 import pihole_vars
+from docopt import docopt
 
 
 # SCRIPT
 
 
-def main():
-    pass
+def main(argv):
+    if argv is None:
+        args = docopt(__doc__)
+    else:
+        args = docopt(__doc__, argv=argv)
 
 
 if __name__ == "__main__":
-    main()
+    main(None)
