@@ -25,6 +25,7 @@ from datetime import datetime
 import sqlite3
 import os
 import socket
+import argparse
 
 
 # VARIABLES
@@ -67,6 +68,16 @@ local_vars = pihole_dir + "pihole.conf"
 
 
 # CLASSES
+
+
+# Credit for this class: http://stackoverflow.com/a/31124505
+class CustomHelpFormatter(argparse.HelpFormatter):
+    def _format_action_invocation(self, action):
+        if not action.option_strings or action.nargs == 0:
+            return super()._format_action_invocation(action)
+        default = self._get_default_metavar_for_optional(action)
+        args_string = self._format_args(action, default)
+        return ', '.join(action.option_strings) + ' ' + args_string
 
 
 # Database Schema:

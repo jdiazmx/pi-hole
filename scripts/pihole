@@ -21,10 +21,7 @@
 # IMPORTS
 
 
-import sys
 import argparse
-import os
-import subprocess
 import pihole_vars
 import gravity
 import updatePihole
@@ -38,16 +35,6 @@ import setupLCD
 
 
 # FUNCTIONS
-
-
-# Credit for this class: http://stackoverflow.com/a/31124505
-class CustomHelpFormatter(argparse.HelpFormatter):
-    def _format_action_invocation(self, action):
-        if not action.option_strings or action.nargs == 0:
-            return super()._format_action_invocation(action)
-        default = self._get_default_metavar_for_optional(action)
-        args_string = self._format_args(action, default)
-        return ', '.join(action.option_strings) + ' ' + args_string
 
 
 def choice_help(context):
@@ -67,11 +54,11 @@ def choice_gravity():
     gravity.main()
 
 
-def choice_whitelist(domains):
+def choice_whitelist():
     whitelist.main()
 
 
-def choice_blacklist(domains):
+def choice_blacklist():
     blacklist.main()
 
 
@@ -92,19 +79,35 @@ def main():
     parser = argparse.ArgumentParser(
         description="Control Pi-hole from a single command",
         epilog="(c) 2014-2016 by Jacob Salmela.  http://jacobsalmela.com",
-        formatter_class=lambda prog: CustomHelpFormatter(prog),
+        formatter_class=lambda prog: pihole_vars.CustomHelpFormatter(prog),
         add_help=False
     )
+
+    # Sub commands
+    subparsers = parser.add_subparsers()
+    whitelist_parser = subparsers.add_parser("whitelist", help="Whitelist one or more domains")
+    blacklist_parser = subparsers.add_parser("blacklist", help="Blacklist one or more domains")
+    whitelist_parser.set_defaults(func=choice_whitelist)
+    blacklist_parser.set_defaults(func=choice_blacklist)
+
+    whitelist_parser.add_argument("domains", help="domain(s) to add or remove",
+                                  nargs="*", metavar="domain")
+    whitelist_group = whitelist_parser.add_mutually_exclusive_group()
+    whitelist_group.add_argument("-d", "--delete", help="Delete domain(s) from whitelist",
+                                 action="store_true")
+    whitelist_group.add_argument("-l", "--list", help="List domains in whitelist",
+                                 action="store_true")
+
+    blacklist_parser.add_argument("domains", help="domain(s) to add or remove",
+                                  nargs="*", metavar="domain")
+
+    # Simple commands
     group = parser.add_mutually_exclusive_group()
 
-    group.add_argument("-h", "--help", help="show the corresponding help message and exit",
-                       nargs="?", metavar="command")
+    group.add_argument("-h", "--help", help="show this help message and exit",
+                       action="store_true")
     group.add_argument("-g", "--gravity", help="update the domain block list",
                        action="store_true")
-    group.add_argument("-w", "--whitelist", help="whitelist one or more domains",
-                       nargs="*", metavar="domain")
-    group.add_argument("-b", "--blacklist", help="blacklist one or more domains",
-                       nargs="*", metavar="domain")
     group.add_argument("-u", "--update", help="update Pi-hole and/ore the web interface",
                        action="store_true")
     group.add_argument("-f", "--flush", help="flush the log file",
@@ -118,12 +121,18 @@ def main():
     group.add_argument("--uninstall", help="uninstall Pi-hole ;(",
                        action="store_true")
 
+    parser.print_help()
+    print("----------------------------------------------")
+    whitelist_parser.print_help()
+    print("----------------------------------------------")
+    print(whitelist_parser.parse_args(["-l", "example.com", "example2.com"]))
+    exit()
     options = parser.parse_args()
 
     # Make sure at least one option has been chosen
     options_dict = vars(options)
     for key in options_dict.keys():
-        if options_dict[key] not in [False, None] or type(options_dict[key]) is list:
+        if options_dict[key] not in [False, None]:
             break
     # Otherwise, print the help
     else:
@@ -131,18 +140,18 @@ def main():
         exit()
 
     # Pi-hole Computer Access Retrieval System
-    if options.help is not None:
-        choice_help(options.help)
+    if options.help:
+        parser.print_help()
     elif options.update:
         choice_update()
     elif options.uninstall:
         choice_uninstall()
     elif options.gravity:
         choice_gravity()
-    elif options.whitelist is not None:
-        choice_whitelist(options.whitelist)
-    elif options.blacklist is not None:
-        choice_blacklist(options.blacklist)
+    elif options.whitelist:
+        choice_whitelist()
+    elif options.blacklist:
+        choice_blacklist()
     elif options.flush:
         choice_flush()
     elif options.lcd():
