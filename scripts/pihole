@@ -51,6 +51,11 @@ import os
 
 
 def main():
+    # Check for root access
+    if os.geteuid() != 0:
+        print("This requires root access")
+        exit()
+
     args = docopt(__doc__, version=pihole_vars.version, options_first=True)
     print("Global Args:\n" + str(args))
     print("Command Args:")
