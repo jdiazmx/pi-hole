@@ -21,11 +21,9 @@
 # DOCOPT
 
 
-"""
-Update Pi-hole Web Interface
+"""Update Pi-hole Web Interface
 
-Usage: pihole updateWeb
-"""
+Usage: pihole updateWeb"""
 
 
 # IMPORT

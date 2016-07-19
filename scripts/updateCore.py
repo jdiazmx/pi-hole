@@ -21,11 +21,9 @@
 # DOCOPT
 
 
-"""
-Update Pi-hole Core
+"""Update Pi-hole Core
 
-Usage: pihole updateCore
-"""
+Usage: pihole updateCore"""
 
 
 # IMPORTS

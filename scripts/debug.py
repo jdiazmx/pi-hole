@@ -21,11 +21,9 @@
 # Docopt
 
 
-"""
-Generate a new Pi-hole debug log
+"""Generate a new Pi-hole debug log
 
-Usage: pihole debug
-"""
+Usage: pihole debug"""
 
 
 # IMPORT

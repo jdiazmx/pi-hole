@@ -19,11 +19,9 @@
 
 
 # Docopt
-"""
-Start up Pi-hole's ad-blocking gravity
+"""Start up Pi-hole's ad-blocking gravity
 
-Usage: pihole gravity
-"""
+Usage: pihole gravity"""
 
 
 # IMPORTS

@@ -21,11 +21,9 @@
 # Docopt
 
 
-"""
-Flush Pi-hole's DNS log
+"""Flush Pi-hole's DNS log
 
-Usage: pihole flush
-"""
+Usage: pihole flush"""
 
 
 # IMPORT

@@ -21,11 +21,9 @@
 # Docopt
 
 
-"""
-Uninstall Pi-hole ;(
+"""Uninstall Pi-hole ;(
 
-Usage: pihole uninstall
-"""
+Usage: pihole uninstall"""
 
 
 # IMPORT

@@ -21,8 +21,7 @@
 # DOCOPT
 
 
-"""
-Usage: pihole <command> [<args>...]
+"""Usage: pihole <command> [<args>...]
 
 Commands:
     gravity     Starts up Pi-hole's ad-blocking gravity
@@ -35,14 +34,21 @@ Commands:
     help        Show corresponding help
     uninstall   Uninstall Pi-hole ;(
 
-See 'pihole help [command]' for more information on a specific command
-"""
+See 'pihole help [command]' for more information on a specific command"""
 
 
 # IMPORTS
 
 
 import pihole_vars
+import gravity
+import whitelist
+import blacklist
+import updateCore
+import updateWeb
+import flush
+import debug
+import uninstall
 from docopt import docopt
 import os
 
@@ -56,37 +62,53 @@ def main():
         print("This requires root access")
         exit()
 
-    args = docopt(__doc__, version=pihole_vars.version, options_first=True)
-    print("Global Args:\n" + str(args))
+    arguments = docopt(__doc__, version=pihole_vars.version, options_first=True)
+    print("Global Args:\n" + str(arguments))
     print("Command Args:")
 
-    com = args['<command>']
-    com_args = [com] + args["<args>"]
+    com = arguments['<command>']
+    com_args = [com] + arguments["<args>"]
 
     if com == "gravity":
-        import gravity
         gravity.main(com_args)
     elif com == "whitelist":
-        import whitelist
         whitelist.main(com_args)
     elif com == "blacklist":
-        import blacklist
         blacklist.main(com_args)
     elif com == "updateCore":
-        import updateCore
         updateCore.main(com_args)
     elif com == "updateWeb":
-        import updateWeb
         updateWeb.main(com_args)
     elif com == "flush":
-        import flush
         flush.main(com_args)
     elif com == "debug":
-        import debug
         debug.main(com_args)
     elif com == "uninstall":
-        import uninstall
         uninstall.main(com_args)
+    elif com == "help":
+        args = arguments["<args>"]
+        if len(args) == 0:
+            print(__doc__)
+        elif args[0] == "gravity":
+            print(gravity.__doc__)
+        elif args[0] == "whitelist":
+            print(whitelist.__doc__)
+        elif args[0] == "blacklist":
+            print(blacklist.__doc__)
+        elif args[0] == "updateCore":
+            print(updateCore.__doc__)
+        elif args[0] == "updateWeb":
+            print(updateWeb.__doc__)
+        elif args[0] == "flush":
+            print(flush.__doc__)
+        elif args[0] == "debug":
+            print(debug.__doc__)
+        elif args[0] == "uninstall":
+            print(uninstall.__doc__)
+        else:
+            print('Could not find help for "' + args[0] + '"')
+    else:
+        print("Unknown command")
 
 if __name__ == "__main__":
     main()
