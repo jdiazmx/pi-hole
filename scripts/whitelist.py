@@ -24,11 +24,13 @@
 """Whitelist one or more domains from Pi-hole's ad-blocking gravity
 
 Usage:
-    pihole whitelist [-l]
+    pihole whitelist list
     pihole whitelist [-d] [-f] [-e] <domains>...
 
+Commands:
+    list                List the domains
+
 Options:
-    -l --list           List the domains
     -d --delete         Delete the domain(s)
     -f --force          Force reload DNS, even if no changes have been made
     -e --errors-only    Only output status codes"""
@@ -49,6 +51,8 @@ def main(argv):
         args = docopt(__doc__)
     else:
         args = docopt(__doc__, argv=argv)
+
+    print(args)
 
 
 if __name__ == "__main__":

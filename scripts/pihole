@@ -63,50 +63,53 @@ def main():
         exit()
 
     arguments = docopt(__doc__, version=pihole_vars.version, options_first=True)
-    print("Global Args:\n" + str(arguments))
-    print("Command Args:")
 
-    com = arguments['<command>']
-    com_args = [com] + arguments["<args>"]
+    command = arguments['<command>']
+    command_args = [command] + arguments["<args>"]
 
-    if com == "gravity":
-        gravity.main(com_args)
-    elif com == "whitelist":
-        whitelist.main(com_args)
-    elif com == "blacklist":
-        blacklist.main(com_args)
-    elif com == "updateCore":
-        updateCore.main(com_args)
-    elif com == "updateWeb":
-        updateWeb.main(com_args)
-    elif com == "flush":
-        flush.main(com_args)
-    elif com == "debug":
-        debug.main(com_args)
-    elif com == "uninstall":
-        uninstall.main(com_args)
-    elif com == "help":
-        args = arguments["<args>"]
-        if len(args) == 0:
+    if command == "gravity":
+        gravity.main(command_args)
+    elif command == "whitelist":
+        whitelist.main(command_args)
+    elif command == "blacklist":
+        blacklist.main(command_args)
+    elif command == "updateCore":
+        updateCore.main(command_args)
+    elif command == "updateWeb":
+        updateWeb.main(command_args)
+    elif command == "flush":
+        flush.main(command_args)
+    elif command == "debug":
+        debug.main(command_args)
+    elif command == "uninstall":
+        uninstall.main(command_args)
+    elif command == "help":
+        if len(command_args) == 1:
             print(__doc__)
-        elif args[0] == "gravity":
+            exit()
+        elif len(command_args) != 2:
+            print("Please enter only one command to find help on")
+            exit()
+
+        help_arg = arguments["<args>"][0]
+        if help_arg == "gravity":
             print(gravity.__doc__)
-        elif args[0] == "whitelist":
+        elif help_arg == "whitelist":
             print(whitelist.__doc__)
-        elif args[0] == "blacklist":
+        elif help_arg == "blacklist":
             print(blacklist.__doc__)
-        elif args[0] == "updateCore":
+        elif help_arg == "updateCore":
             print(updateCore.__doc__)
-        elif args[0] == "updateWeb":
+        elif help_arg == "updateWeb":
             print(updateWeb.__doc__)
-        elif args[0] == "flush":
+        elif help_arg == "flush":
             print(flush.__doc__)
-        elif args[0] == "debug":
+        elif help_arg == "debug":
             print(debug.__doc__)
-        elif args[0] == "uninstall":
+        elif help_arg == "uninstall":
             print(uninstall.__doc__)
         else:
-            print('Could not find help for "' + args[0] + '"')
+            print('Could not find help for "' + help_arg + '"')
     else:
         print("Unknown command")
 
