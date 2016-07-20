@@ -17,24 +17,25 @@
 -- along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 CREATE TABLE IF NOT EXISTS ad_domains (
-  domain TEXT
+  domain TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS unformatted_domains (
-  domain TEXT,
-  list_id INTEGER
+  domain TEXT NOT NULL,
+  list_id INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS lists (
-  id INTEGER PRIMARY KEY,
-  uri TEXT,
-  date DATETIME
+  id INTEGER NOT NULL PRIMARY KEY,
+  uri TEXT NOT NULL,
+  date DATETIME NOT NULL,
+  etag TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS log (
-  time DATETIME,
-  domain TEXT,
-  client TEXT,
-  record TEXT,
-  blocked INTEGER
+  time DATETIME NOT NULL,
+  domain TEXT NOT NULL,
+  client TEXT NOT NULL,
+  record TEXT NOT NULL,
+  blocked INTEGER NOT NULL
 );
