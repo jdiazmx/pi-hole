@@ -237,11 +237,16 @@ class Pihole:
     def export_hosts(self):
         # Check for IPv6
         useIPv6 = os.path.isfile(pihole_dir + ".useIPv6")
+        hostname = socket.gethostname()
 
         with open(ad_list, 'w') as file:
             # Add pi.hole and hostname first
             file.write(pihole_ip + " pi.hole\n")
-            file.write(pihole_ip + " " + socket.gethostname() + "\n")
+            file.write(pihole_ip + " " + hostname + "\n")
+
+            if useIPv6:
+                file.write(pihole_ipv6 + " pi.hole\n")
+                file.write(pihole_ipv6 + " " + hostname + "\n")
 
             # Add the rest of the domains
             for domain in self.domains:
