@@ -40,7 +40,7 @@ from docopt import docopt
 
 
 # Downloads a list
-def download_list(list, mod, pihole):
+def download_list(list, mod, etag, pihole):
     # Clean old list
     list.clean()
 
@@ -51,7 +51,7 @@ def download_list(list, mod, pihole):
     domains = [domain.split()[1] for domain in r.text.splitlines() if
                not domain.strip().startswith("#") and len(domain.strip()) > 0]
 
-    pihole.update_list(list.get_uri(), domains, mod)
+    pihole.update_list(list.get_uri(), domains, mod, etag)
 
     print("  * Downloaded!")
 
@@ -78,30 +78,39 @@ def main(argv):
         if len(l.get_domains()) == 0:
             # Must be a new list
             print("  * New list, downloading...")
-            num_pre_formatted += download_list(l, datetime.now(), pihole)
+            num_pre_formatted += download_list(l, datetime.now(), l.get_etag(), pihole)
         # Check if it needs updating
         else:
             # Get request
             remote = requests.head(l.get_uri(), timeout=5)
 
+            # Check for E-Tag
+            if "ETag" in remote.headers and len(remote.headers["ETag"]) > 0:
+                etag = remote.headers["ETag"]
+
+                if etag != l.get_etag():
+                    print("  * Update found, downloading...")
+                    num_pre_formatted += download_list(l, l.get_date(), etag, pihole)
+                else:
+                    print("  * No update!")
+                    num_pre_formatted += len(l.get_domains())
             # Check for Last-Modified header
-            if "Last-Modified" in remote.headers and \
-                    len(remote.headers["Last-Modified"]) > 0 and \
-                    remote.headers["Last-Modified"] != '0':
+            elif "Last-Modified" in remote.headers and \
+                            len(remote.headers["Last-Modified"]) > 0 and \
+                            remote.headers["Last-Modified"] != '0':
                 remote_date = datetime(*eut.parsedate(remote.headers["Last-Modified"])[:6])
 
                 # If the remote date is newer than the stored date
                 if remote_date > l.get_date():
                     print("  * Update found, downloading...")
-                    num_pre_formatted += download_list(l, remote_date, pihole)
+                    num_pre_formatted += download_list(l, remote_date, l.get_etag(), pihole)
                 else:
                     print("  * No update!")
                     num_pre_formatted += len(l.get_domains())
-                    pass
             else:
                 # If we don't know the date, just download it
                 print("  * No modification date found, downloading...")
-                num_pre_formatted += download_list(l, datetime.now(), pihole)
+                num_pre_formatted += download_list(l, datetime.now(), l.get_etag(), pihole)
 
     # Condense into a formatted list of domains
     print("Formatting " + str(num_pre_formatted) + " domains and removing duplicates...")
