@@ -88,10 +88,11 @@ def connect():
 
 
 class List:
-    def __init__(self, uri="", date=datetime.now()):
+    def __init__(self, uri="", date=datetime.now(), etag=""):
         self._uri = uri
         self._date = date
         self._domains = None
+        self._etag = etag
 
     def get_domains(self):
         # Lazy init
@@ -114,11 +115,17 @@ class List:
     def get_uri(self):
         return self._uri
 
+    def get_etag(self):
+        return self._etag
+
     def set_domains(self, domains):
         self._domains = domains
 
     def set_date(self, date):
         self._date = date
+
+    def set_etag(self, etag):
+        self._etag = etag
 
     def clean(self):
         database = connect()
@@ -176,7 +183,7 @@ class Pihole:
         # Read in lists
         cursor.execute("SELECT * FROM lists")
         for row in cursor:
-            self.lists.append(List(row[1], datetime.strptime(row[2], time_format)))
+            self.lists.append(List(row[1], datetime.strptime(row[2], time_format), row[3]))
 
         database.close()
 
@@ -191,11 +198,12 @@ class Pihole:
 
         database.close()
 
-    def update_list(self, uri, domains, time):
+    def update_list(self, uri, domains, time, etag):
         # Update list and clean
         for i in self.lists:
             if i.get_uri() == uri:
                 i.set_date(time)
+                i.set_etag(etag)
                 i.clean()
                 i.set_domains(domains)
                 break
@@ -208,7 +216,10 @@ class Pihole:
         list_id = cursor.fetchone()[0]
 
         # Update list time on the database
-        cursor.execute("UPDATE lists SET date=? WHERE id=?", (time.strftime(time_format), list_id))
+        cursor.execute(
+            "UPDATE lists SET date=?, etag=? WHERE id=?",
+            (time.strftime(time_format), etag, list_id)
+        )
 
         # Add domains
         for domain in domains:
