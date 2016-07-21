@@ -17,7 +17,7 @@
 -- along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 CREATE TABLE IF NOT EXISTS ad_domains (
-  domain TEXT NOT NULL
+  domain TEXT NOT NULL PRIMARY KEY
 );
 
 CREATE TABLE IF NOT EXISTS unformatted_domains (
