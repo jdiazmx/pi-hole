@@ -130,13 +130,7 @@ def main(argv):
     print("  * Blacklisted x domains!")
 
     # Reload dnsmasq to apply changes
-    print("Reloading dnsmasq...")
-    try:
-        pid = int(check_output(["pidof", "-s", "dnsmasq"]))
-        call(["killall", "-s", "HUP", "dnsmasq"])
-    except CalledProcessError:
-        # Must not be running
-        call(["service", "dnsmasq", "start"])
+    pihole_vars.restart_gravity()
 
 
 if __name__ == "__main__":
