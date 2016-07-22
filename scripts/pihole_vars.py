@@ -312,7 +312,7 @@ class Pihole:
 
     def compile_list(self):
         # Update local domain list
-        self.domains = list(set([item for list in self.lists for item in list.get_domains()]))
+        self.domains = list(set([item for l in self.lists for item in l.get_domains()]))
 
         db = connect()
         c = db.cursor()
