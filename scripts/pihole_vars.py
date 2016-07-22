@@ -25,6 +25,7 @@ from datetime import datetime
 import sqlite3
 import os
 import socket
+from subprocess import check_output, CalledProcessError, call
 
 
 # VARIABLES
@@ -67,6 +68,23 @@ local_vars = pihole_dir + "pihole.conf"
 
 
 time_format = '%Y-%m-%d %H:%M:%S'
+
+error_codes = {
+    "success": 0,
+    "unknown": 1,
+    "database_generic": 2,
+    "domain_already_exists": 3,
+    "domain_does_not_exist": 4
+}
+
+
+def restart_gravity():
+    try:
+        pid = int(check_output(["pidof", "-s", "dnsmasq"]))
+        call(["killall", "-s", "HUP", "dnsmasq"])
+    except CalledProcessError:
+        # Must not be running
+        call(["service", "dnsmasq", "start"])
 
 
 def connect():
@@ -313,8 +331,16 @@ class Pihole:
         db.close()
 
     def compile_list(self):
-        # Update local domain list
+        # Load all domains from lists (also removes duplicates)
         self.domains = list(set([item for l in self.lists for item in l.get_domains()]))
+
+        # Remove whitelisted entries
+        self.domains = [item for item in self.domains if item not in self.whitelist]
+
+        # Add blacklisted entries
+        for domain in self.blacklist:
+            if domain not in self.domains:
+                self.domains.append(domain)
 
         db = connect()
         c = db.cursor()
