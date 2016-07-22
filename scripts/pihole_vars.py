@@ -148,6 +148,8 @@ class Pihole:
     def __init__(self):
         self.reload_domains()
         self.reload_lists()
+        self.reload_whitelist()
+        self.reload_blacklist()
         self.reload_log()
 
     def get_domains(self):
