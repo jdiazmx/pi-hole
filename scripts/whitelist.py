@@ -45,6 +45,21 @@ from docopt import docopt
 
 # SCRIPT
 
+errors = False
+codes = []
+
+
+def log(output):
+    if not errors:
+        print(output)
+
+
+def log_code(domain, code):
+    codes.append({
+        "domain": domain,
+        "code": code
+    })
+
 
 def main(argv):
     if argv is None:
@@ -53,6 +68,59 @@ def main(argv):
         args = docopt(__doc__, argv=argv)
 
     print(args)
+    print("Loading Pi-hole instance...")
+    pihole = pihole_vars.Pihole()
+
+    if args["list"]:
+        for i, domain in enumerate(pihole.get_whitelist(), start=1):
+            print(str(i) + ") " + domain)
+    else:
+        global errors
+        domains = args["<domains>"]
+        delete = args["--delete"]
+        force = args["--force"]
+        errors = args["--errors-only"]
+
+        for domain in domains:
+            if not delete:
+                if domain in pihole.get_whitelist():
+                    log(domain + " is already in the whitelist!")
+                    log_code(domain, pihole_vars.error_codes["domain_already_exists"])
+                    continue
+
+                log("Adding " + domain + " to the whitelist")
+                pihole.add_whitelist(domain)
+                log("    Done!")
+                log_code(domain, pihole_vars.error_codes["success"])
+            else:
+                if domain not in pihole.get_whitelist():
+                    log(domain + " is not in the whitelist!")
+                    log_code(domain, pihole_vars.error_codes["domain_does_not_exist"])
+                    continue
+
+                log("Removing " + domain + " from the whitelist")
+                pihole.remove_whitelist(domain)
+                log("    Done!")
+                log_code(domain, pihole_vars.error_codes["success"])
+
+        # Regenerate hosts list
+        log("Regenerating gravity...")
+        pihole.compile_list()
+        pihole.export_hosts()
+
+        # Reload DNS only if something changed, or we're forced to
+        if len([code for item in codes for code in item.values() if code == pihole_vars.error_codes["success"]]) > 0 or force:
+            # Reload
+            log("Restarting gravity...")
+            pihole_vars.restart_gravity()
+            log("Done!")
+            pass
+        else:
+            log("Gravity has not been altered")
+
+        # Print codes if asked (lists of numbers in Python print the same as JSON)
+        if errors:
+            print(codes)
 
 
 if __name__ == "__main__":
