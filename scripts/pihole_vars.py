@@ -48,8 +48,8 @@ version = "Pi-hole 3.0.0"
 database = pihole_dir + "pihole.db"
 ad_list = pihole_dir + "gravity.list"
 custom_ad_list = pihole_dir + "ad_list.custom"
-blacklist = pihole_dir + "blacklist.txt"
-whitelist = pihole_dir + "whitelist.txt"
+blacklist_path = pihole_dir + "blacklist.txt"
+whitelist_path = pihole_dir + "whitelist.txt"
 pihole_ip = "@PIHOLEIP@"
 pihole_ipv6 = "@PIHOLEIPV6@"
 
@@ -142,6 +142,8 @@ class Query:
 class Pihole:
     domains = []
     lists = []
+    whitelist = []
+    blacklist = []
     log = []
 
     def __init__(self):
@@ -154,6 +156,12 @@ class Pihole:
 
     def get_lists(self):
         return self.lists
+
+    def get_whitelist(self):
+        return self.whitelist
+
+    def get_blacklist(self):
+        return self.blacklist
 
     def get_log(self):
         return self.log
@@ -177,6 +185,28 @@ class Pihole:
         c.execute("SELECT * FROM lists")
         for row in c:
             self.lists.append(List(row[1], datetime.strptime(row[2], time_format), row[3]))
+
+        db.close()
+
+    def reload_whitelist(self):
+        db = connect()
+        c = db.cursor()
+
+        # Read in domains
+        c.execute("SELECT * FROM whitelist")
+        for row in c:
+            self.whitelist.append(row[0])
+
+        db.close()
+
+    def reload_blacklist(self):
+        db = connect()
+        c = db.cursor()
+
+        # Read in domains
+        c.execute("SELECT * FROM blacklist")
+        for row in c:
+            self.blacklist.append(row[0])
 
         db.close()
 
@@ -217,6 +247,66 @@ class Pihole:
         # Add domains
         for domain in domains:
             c.execute("INSERT INTO unformatted_domains VALUES(?, ?)", (domain, list_id))
+
+        db.commit()
+        db.close()
+
+    def add_whitelist(self, domain):
+        # Don't add if it's already there
+        if domain in self.whitelist:
+            return
+
+        self.whitelist.append(domain)
+
+        db = connect()
+        c = db.cursor()
+
+        c.execute("INSERT INTO whitelist VALUES (?)", (domain,))
+
+        db.commit()
+        db.close()
+
+    def add_blacklist(self, domain):
+        # Don't add if it's already there
+        if domain in self.blacklist:
+            return
+
+        self.blacklist.append(domain)
+
+        db = connect()
+        c = db.cursor()
+
+        c.execute("INSERT INTO blacklist VALUES (?)", (domain,))
+
+        db.commit()
+        db.close()
+
+    def remove_whitelist(self, domain):
+        # Only remove if it's there
+        if domain not in self.whitelist:
+            return
+
+        self.whitelist.remove(domain)
+
+        db = connect()
+        c = db.cursor()
+
+        c.execute("DELETE FROM whitelist WHERE domain=?", (domain,))
+
+        db.commit()
+        db.close()
+
+    def remove_blacklist(self, domain):
+        # Only remove if it's there
+        if domain not in self.blacklist:
+            return
+
+        self.blacklist.remove(domain)
+
+        db = connect()
+        c = db.cursor()
+
+        c.execute("DELETE FROM blacklist WHERE domain=?", (domain,))
 
         db.commit()
         db.close()
