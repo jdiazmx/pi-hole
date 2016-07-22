@@ -32,7 +32,6 @@ import argparse
 
 
 # URLs of block lists to use
-global sources
 sources = ["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",  # ETag
            "http://adblock.gjtech.net/?format=unix-hosts",  # Last-Modified
            "http://mirror1.malwaredomains.com/files/justdomains",  # ETag + Last-Modified
@@ -41,9 +40,6 @@ sources = ["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",  
            "https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt",  # ETag + Last-Modified
            "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",  # ETag + Last-Modified
            "https://hosts-file.net/ad_servers.txt"]  # ETag + Last-Modified
-
-global basename, pihole_dir, version, ad_list, custom_ad_list, blacklist, whitelist, pihole_ip, \
-    pihole_ipv6, local_vars
 
 # File path variables
 basename = "pihole"
