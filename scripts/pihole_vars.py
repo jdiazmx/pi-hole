@@ -25,7 +25,6 @@ from datetime import datetime
 import sqlite3
 import os
 import socket
-import argparse
 
 
 # VARIABLES
