@@ -42,7 +42,8 @@ sources = ["https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",  
            "https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt",  # ETag + Last-Modified
            "https://hosts-file.net/ad_servers.txt"]  # ETag + Last-Modified
 
-global basename, pihole_dir, version, ad_list, custom_ad_list, blacklist, whitelist, pihole_ip, pihole_ipv6, local_vars
+global basename, pihole_dir, version, ad_list, custom_ad_list, blacklist, whitelist, pihole_ip, \
+    pihole_ipv6, local_vars
 
 # File path variables
 basename = "pihole"
@@ -87,16 +88,19 @@ class List:
     def get_domains(self):
         # Lazy init
         if self._domains is None:
-            database = connect()
-            cursor = database.cursor()
+            db = connect()
+            c = db.cursor()
 
             # Get domains
-            cursor.execute("SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self._uri,))
+            c.execute(
+                "SELECT domain FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)",
+                (self._uri,)
+            )
             self._domains = []
-            for row in cursor:
+            for row in c:
                 self._domains.append(row[0])
 
-            database.close()
+            db.close()
         return self._domains
 
     def get_date(self):
@@ -118,13 +122,16 @@ class List:
         self._etag = etag
 
     def clean(self):
-        database = connect()
-        cursor = database.cursor()
+        db = connect()
+        c = db.cursor()
 
-        cursor.execute("DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)", (self._uri,))
+        c.execute(
+            "DELETE FROM unformatted_domains WHERE list_id IN (SELECT id FROM lists WHERE uri=?)",
+            (self._uri,)
+        )
 
-        database.commit()
-        database.close()
+        db.commit()
+        db.close()
 
 
 class Query:
@@ -156,37 +163,37 @@ class Pihole:
         return self.log
 
     def reload_domains(self):
-        database = connect()
-        cursor = database.cursor()
+        db = connect()
+        c = db.cursor()
 
         # Read in domains
-        cursor.execute("SELECT * FROM ad_domains")
-        for row in cursor:
+        c.execute("SELECT * FROM ad_domains")
+        for row in c:
             self.domains.append(row[0])
 
-        database.close()
+        db.close()
 
     def reload_lists(self):
-        database = connect()
-        cursor = database.cursor()
+        db = connect()
+        c = db.cursor()
 
         # Read in lists
-        cursor.execute("SELECT * FROM lists")
-        for row in cursor:
+        c.execute("SELECT * FROM lists")
+        for row in c:
             self.lists.append(List(row[1], datetime.strptime(row[2], time_format), row[3]))
 
-        database.close()
+        db.close()
 
     def reload_log(self):
-        database = connect()
-        cursor = database.cursor()
+        db = connect()
+        c = db.cursor()
 
         # Read in log
-        cursor.execute("SELECT * FROM log")
-        for row in cursor:
+        c.execute("SELECT * FROM log")
+        for row in c:
             self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
 
-        database.close()
+        db.close()
 
     def update_list(self, uri, domains, time, etag):
         # Update list and clean
@@ -198,42 +205,42 @@ class Pihole:
                 i.set_domains(domains)
                 break
 
-        database = connect()
-        cursor = database.cursor()
+        db = connect()
+        c = db.cursor()
 
         # Get list id
-        cursor.execute("SELECT id FROM lists WHERE uri=?", (uri,))
-        list_id = cursor.fetchone()[0]
+        c.execute("SELECT id FROM lists WHERE uri=?", (uri,))
+        list_id = c.fetchone()[0]
 
         # Update list time on the database
-        cursor.execute(
+        c.execute(
             "UPDATE lists SET date=?, etag=? WHERE id=?",
             (time.strftime(time_format), etag, list_id)
         )
 
         # Add domains
         for domain in domains:
-            cursor.execute("INSERT INTO unformatted_domains VALUES(?, ?)", (domain, list_id))
+            c.execute("INSERT INTO unformatted_domains VALUES(?, ?)", (domain, list_id))
 
-        database.commit()
-        database.close()
+        db.commit()
+        db.close()
 
     def compile_list(self):
         # Update local domain list
         self.domains = list(set([item for list in self.lists for item in list.get_domains()]))
 
-        database = connect()
-        cursor = database.cursor()
+        db = connect()
+        c = db.cursor()
 
         # Clean domains
-        cursor.execute("DELETE FROM ad_domains")
+        c.execute("DELETE FROM ad_domains")
 
         # Insert new domains
         for domain in self.domains:
-            cursor.execute("INSERT INTO ad_domains VALUES(?)", (domain,))
+            c.execute("INSERT INTO ad_domains VALUES(?)", (domain,))
 
-        database.commit()
-        database.close()
+        db.commit()
+        db.close()
 
     def export_hosts(self):
         # Check for IPv6
