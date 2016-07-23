@@ -86,16 +86,12 @@ def main(argv):
                 changed.append(pihole.remove_whitelist(domain))
                 print("    Done!")
 
-        # Regenerate hosts list
-        print("Recalibrating gravity...")
-        pihole.export_hosts()
-
-        # Reload DNS only if something changed, or we're forced to
+        # Regenerate and reload DNS only if something changed, or we're forced to
         if True in changed or force:
-            print("Restarting gravity...")
+            print("Recalibrating gravity...")
+            pihole.export_hosts()
             pihole_vars.restart_gravity()
             print("Done!")
-            pass
         else:
             print("Gravity has not been altered")
 
