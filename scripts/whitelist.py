@@ -91,7 +91,7 @@ def main(argv):
             print("Recalibrating gravity...")
             pihole.export_hosts()
             pihole_vars.restart_gravity()
-            print("Done!")
+            print("    Done!")
         else:
             print("Gravity has not been altered")
 
