@@ -80,6 +80,7 @@ def main(argv):
         delete = args["--delete"]
         force = args["--force"]
         errors = args["--errors-only"]
+        changed = []
 
         for domain in domains:
             if not delete:
@@ -89,7 +90,7 @@ def main(argv):
                     continue
 
                 log("Adding " + domain + " to the whitelist")
-                pihole.add_whitelist(domain)
+                changed.append(pihole.add_whitelist(domain))
                 log("    Done!")
                 log_code(domain, pihole_vars.error_codes["success"])
             else:
@@ -99,18 +100,16 @@ def main(argv):
                     continue
 
                 log("Removing " + domain + " from the whitelist")
-                pihole.remove_whitelist(domain)
+                changed.append(pihole.remove_whitelist(domain))
                 log("    Done!")
                 log_code(domain, pihole_vars.error_codes["success"])
 
         # Regenerate hosts list
-        log("Regenerating gravity...")
-        pihole.compile_list()
+        log("Recalibrating gravity...")
         pihole.export_hosts()
 
         # Reload DNS only if something changed, or we're forced to
-        if len([code for item in codes for code in item.values() if code == pihole_vars.error_codes["success"]]) > 0 or force:
-            # Reload
+        if True in changed or force:
             log("Restarting gravity...")
             pihole_vars.restart_gravity()
             log("Done!")
