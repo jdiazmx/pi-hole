@@ -385,9 +385,7 @@ class Pihole:
         self.domains = [item for item in self.domains if item not in self.whitelist]
 
         # Add blacklisted entries (if not already blocked)
-        for domain in self.blacklist:
-            if domain not in self.domains:
-                self.domains.append(domain)
+        self.domains = list(set().union(self.domains, self.blacklist))
 
         db = connect()
         c = db.cursor()
