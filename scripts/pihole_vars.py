@@ -173,6 +173,9 @@ class Pihole:
     def get_domains(self):
         return self.domains
 
+    def get_raw_domains(self):
+        return list(set([item for l in self.lists for item in l.get_domains()]))
+
     def get_lists(self):
         return self.lists
 
@@ -282,6 +285,11 @@ class Pihole:
 
         c.execute("INSERT INTO whitelist VALUES (?)", (domain,))
 
+        # Remove from ad domains if it's there
+        if domain in self.domains:
+            self.domains.remove(domain)
+            c.execute("DELETE FROM ad_domains WHERE domain=?", (domain,))
+
         db.commit()
         db.close()
 
@@ -296,6 +304,11 @@ class Pihole:
         c = db.cursor()
 
         c.execute("INSERT INTO blacklist VALUES (?)", (domain,))
+
+        # Add to list if it's not already there
+        if domain not in self.domains:
+            self.domains.append(domain)
+            c.execute("INSERT INTO ad_domains VALUES (?)", (domain,))
 
         db.commit()
         db.close()
@@ -312,6 +325,11 @@ class Pihole:
 
         c.execute("DELETE FROM whitelist WHERE domain=?", (domain,))
 
+        # Check if domain should be re-added to ad domain list
+        if domain in self.get_raw_domains():
+            self.domains.append(domain)
+            c.execute("INSERT INTO ad_domains VALUES (?)", (domain,))
+
         db.commit()
         db.close()
 
@@ -327,17 +345,22 @@ class Pihole:
 
         c.execute("DELETE FROM blacklist WHERE domain=?", (domain,))
 
+        # Check if domain should be removed from ad domain list
+        if domain not in self.get_raw_domains():
+            self.domains.remove(domain)
+            c.execute("DELETE FROM ad_domains WHERE domain=?", (domain,))
+
         db.commit()
         db.close()
 
     def compile_list(self):
         # Load all domains from lists (also removes duplicates)
-        self.domains = list(set([item for l in self.lists for item in l.get_domains()]))
+        self.domains = self.get_raw_domains()
 
         # Remove whitelisted entries
         self.domains = [item for item in self.domains if item not in self.whitelist]
 
-        # Add blacklisted entries
+        # Add blacklisted entries (if not already blocked)
         for domain in self.blacklist:
             if domain not in self.domains:
                 self.domains.append(domain)
