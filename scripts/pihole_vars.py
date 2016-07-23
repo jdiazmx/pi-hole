@@ -274,10 +274,14 @@ class Pihole:
         db.close()
 
     def add_whitelist(self, domain):
+        """
+        Return if the ad list has changed
+        """
         # Don't add if it's already there
         if domain in self.whitelist:
-            return
+            return False
 
+        changed = False
         self.whitelist.append(domain)
 
         db = connect()
@@ -289,15 +293,21 @@ class Pihole:
         if domain in self.domains:
             self.domains.remove(domain)
             c.execute("DELETE FROM ad_domains WHERE domain=?", (domain,))
+            changed = True
 
         db.commit()
         db.close()
+        return changed
 
     def add_blacklist(self, domain):
+        """
+        Return if the ad list has changed
+        """
         # Don't add if it's already there
         if domain in self.blacklist:
-            return
+            return False
 
+        changed = False
         self.blacklist.append(domain)
 
         db = connect()
@@ -309,15 +319,21 @@ class Pihole:
         if domain not in self.domains:
             self.domains.append(domain)
             c.execute("INSERT INTO ad_domains VALUES (?)", (domain,))
+            changed = True
 
         db.commit()
         db.close()
+        return changed
 
     def remove_whitelist(self, domain):
+        """
+        Return if the ad list has changed
+        """
         # Only remove if it's there
         if domain not in self.whitelist:
-            return
+            return False
 
+        changed = False
         self.whitelist.remove(domain)
 
         db = connect()
@@ -329,15 +345,21 @@ class Pihole:
         if domain in self.get_raw_domains():
             self.domains.append(domain)
             c.execute("INSERT INTO ad_domains VALUES (?)", (domain,))
+            changed = True
 
         db.commit()
         db.close()
+        return changed
 
     def remove_blacklist(self, domain):
+        """
+        Return if the ad list has changed
+        """
         # Only remove if it's there
         if domain not in self.blacklist:
-            return
+            return False
 
+        changed = False
         self.blacklist.remove(domain)
 
         db = connect()
@@ -349,9 +371,11 @@ class Pihole:
         if domain not in self.get_raw_domains():
             self.domains.remove(domain)
             c.execute("DELETE FROM ad_domains WHERE domain=?", (domain,))
+            changed = True
 
         db.commit()
         db.close()
+        return changed
 
     def compile_list(self):
         # Load all domains from lists (also removes duplicates)
