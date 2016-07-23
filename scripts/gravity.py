@@ -40,9 +40,6 @@ from docopt import docopt
 
 # Downloads a list
 def download_list(ad_list, mod, etag, pihole):
-    # Clean old list
-    ad_list.clean()
-
     # Get new list
     r = requests.get(ad_list.get_uri(), timeout=5)
 
