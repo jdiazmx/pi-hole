@@ -32,7 +32,6 @@ from urllib.parse import urlparse
 import requests
 from datetime import datetime
 import email.utils as eut
-from subprocess import check_output, CalledProcessError, call
 from docopt import docopt
 
 
