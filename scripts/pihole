@@ -70,9 +70,9 @@ def main():
     if command == "gravity":
         gravity.main(command_args)
     elif command == "whitelist":
-        list.main(command_args)
+        list.main(command_args, True)
     elif command == "blacklist":
-        blacklist.main(command_args)
+        list.main(command_args, False)
     elif command == "updateCore":
         updateCore.main(command_args)
     elif command == "updateWeb":
@@ -95,9 +95,9 @@ def main():
         if help_arg == "gravity":
             print(gravity.__doc__)
         elif help_arg == "whitelist":
-            print(list.__doc__)
+            print(list.whitelist)
         elif help_arg == "blacklist":
-            print(blacklist.__doc__)
+            print(list.blacklist)
         elif help_arg == "updateCore":
             print(updateCore.__doc__)
         elif help_arg == "updateWeb":
