@@ -42,7 +42,7 @@ See 'pihole help [command]' for more information on a specific command"""
 
 import pihole_vars
 import gravity
-import whitelist
+import list
 import blacklist
 import updateCore
 import updateWeb
@@ -70,7 +70,7 @@ def main():
     if command == "gravity":
         gravity.main(command_args)
     elif command == "whitelist":
-        whitelist.main(command_args)
+        list.main(command_args)
     elif command == "blacklist":
         blacklist.main(command_args)
     elif command == "updateCore":
@@ -95,7 +95,7 @@ def main():
         if help_arg == "gravity":
             print(gravity.__doc__)
         elif help_arg == "whitelist":
-            print(whitelist.__doc__)
+            print(list.__doc__)
         elif help_arg == "blacklist":
             print(blacklist.__doc__)
         elif help_arg == "updateCore":
