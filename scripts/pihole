@@ -43,7 +43,6 @@ See 'pihole help [command]' for more information on a specific command"""
 import pihole_vars
 import gravity
 import list
-import blacklist
 import updateCore
 import updateWeb
 import flush
