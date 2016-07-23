@@ -57,10 +57,8 @@ def download_list(ad_list, mod, etag, pihole):
 
 
 def main(argv):
-    if argv is None:
-        args = docopt(__doc__)
-    else:
-        args = docopt(__doc__, argv=argv)
+    # Make sure we're called correctly
+    docopt(__doc__, argv=argv)
 
     print("Loading Pi-hole instance...")
     num_pre_formatted = 0
@@ -129,7 +127,3 @@ def main(argv):
 
     # Reload dnsmasq to apply changes
     pihole_vars.restart_gravity()
-
-
-if __name__ == "__main__":
-    main(None)

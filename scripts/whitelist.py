@@ -46,10 +46,7 @@ from docopt import docopt
 
 
 def main(argv):
-    if argv is None:
-        args = docopt(__doc__)
-    else:
-        args = docopt(__doc__, argv=argv)
+    args = docopt(__doc__, argv=argv)
 
     print("Loading Pi-hole instance...")
     pihole = pihole_vars.Pihole()
@@ -94,7 +91,3 @@ def main(argv):
             print("    Done!")
         else:
             print("Gravity has not been altered")
-
-
-if __name__ == "__main__":
-    main(None)

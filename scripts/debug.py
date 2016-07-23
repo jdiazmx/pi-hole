@@ -37,11 +37,6 @@ from docopt import docopt
 
 
 def main(argv):
-    if argv is None:
-        args = docopt(__doc__)
-    else:
-        args = docopt(__doc__, argv=argv)
+    args = docopt(__doc__, argv=argv)
 
-
-if __name__ == "__main__":
-    main(None)
+    print(args)
