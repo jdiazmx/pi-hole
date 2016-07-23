@@ -25,15 +25,14 @@
 
 Usage:
     pihole whitelist list
-    pihole whitelist [-d] [-f] [-e] <domains>...
+    pihole whitelist [-d] [-f] <domains>...
 
 Commands:
     list                List the domains
 
 Options:
     -d --delete         Delete the domain(s)
-    -f --force          Force reload DNS, even if no changes have been made
-    -e --errors-only    Only output status codes"""
+    -f --force          Force reload DNS, even if no changes have been made"""
 
 
 # IMPORTS
@@ -44,22 +43,6 @@ from docopt import docopt
 
 
 # SCRIPT
-
-
-errors = False
-codes = []
-
-
-def log(output):
-    if not errors:
-        print(output)
-
-
-def log_code(domain, code):
-    codes.append({
-        "domain": domain,
-        "code": code
-    })
 
 
 def main(argv):
@@ -80,51 +63,41 @@ def main(argv):
             for i, domain in enumerate(pihole.get_whitelist(), start=1):
                 print(str(i) + ") " + domain)
     else:
-        global errors
         domains = args["<domains>"]
         delete = args["--delete"]
         force = args["--force"]
-        errors = args["--errors-only"]
         changed = []
 
         for domain in domains:
             if not delete:
                 if domain in pihole.get_whitelist():
-                    log(domain + " is already in the whitelist!")
-                    log_code(domain, pihole_vars.error_codes["domain_already_exists"])
+                    print(domain + " is already in the whitelist!")
                     continue
 
-                log("Adding " + domain + " to the whitelist")
+                print("Adding " + domain + " to the whitelist")
                 changed.append(pihole.add_whitelist(domain))
-                log("    Done!")
-                log_code(domain, pihole_vars.error_codes["success"])
+                print("    Done!")
             else:
                 if domain not in pihole.get_whitelist():
-                    log(domain + " is not in the whitelist!")
-                    log_code(domain, pihole_vars.error_codes["domain_does_not_exist"])
+                    print(domain + " is not in the whitelist!")
                     continue
 
-                log("Removing " + domain + " from the whitelist")
+                print("Removing " + domain + " from the whitelist")
                 changed.append(pihole.remove_whitelist(domain))
-                log("    Done!")
-                log_code(domain, pihole_vars.error_codes["success"])
+                print("    Done!")
 
         # Regenerate hosts list
-        log("Recalibrating gravity...")
+        print("Recalibrating gravity...")
         pihole.export_hosts()
 
         # Reload DNS only if something changed, or we're forced to
         if True in changed or force:
-            log("Restarting gravity...")
+            print("Restarting gravity...")
             pihole_vars.restart_gravity()
-            log("Done!")
+            print("Done!")
             pass
         else:
-            log("Gravity has not been altered")
-
-        # Print codes if asked (lists of numbers in Python print the same as JSON)
-        if errors:
-            print(codes)
+            print("Gravity has not been altered")
 
 
 if __name__ == "__main__":
