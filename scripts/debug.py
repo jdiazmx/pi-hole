@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-# Docopt
+# DOCOPT
 
 
 """Generate a new Pi-hole debug log

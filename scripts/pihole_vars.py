@@ -149,19 +149,34 @@ class List:
 
 class Query:
     def __init__(self, time=datetime.now(), domain="", client="", record="", blocked=True):
-        self.time = time
-        self.domain = domain
-        self.client = client
-        self.record = record
-        self.blocked = blocked
+        self._time = time
+        self._domain = domain
+        self._client = client
+        self._record = record
+        self._blocked = blocked
+
+    def get_time(self):
+        return self._time
+
+    def get_domain(self):
+        return self._domain
+
+    def get_client(self):
+        return self._client
+
+    def get_record_type(self):
+        return self._record
+
+    def was_blocked(self):
+        return self._blocked
 
 
 class Pihole:
-    domains = []
-    lists = []
-    whitelist = []
-    blacklist = []
-    log = []
+    _domains = []
+    _lists = []
+    _whitelist = []
+    _blacklist = []
+    _log = []
 
     def __init__(self):
         self.reload_domains()
@@ -171,22 +186,22 @@ class Pihole:
         self.reload_log()
 
     def get_domains(self):
-        return self.domains
+        return self._domains
 
     def get_raw_domains(self):
-        return list(set([item for l in self.lists for item in l.get_domains()]))
+        return list(set([item for l in self._lists for item in l.get_domains()]))
 
     def get_lists(self):
-        return self.lists
+        return self._lists
 
     def get_whitelist(self):
-        return self.whitelist
+        return self._whitelist
 
     def get_blacklist(self):
-        return self.blacklist
+        return self._blacklist
 
     def get_log(self):
-        return self.log
+        return self._log
 
     def reload_domains(self):
         db = connect()
@@ -195,7 +210,7 @@ class Pihole:
         # Read in domains
         c.execute("SELECT * FROM ad_domains")
         for row in c:
-            self.domains.append(row[0])
+            self._domains.append(row[0])
 
         db.close()
 
@@ -206,7 +221,7 @@ class Pihole:
         # Read in lists
         c.execute("SELECT * FROM lists")
         for row in c:
-            self.lists.append(List(row[1], datetime.strptime(row[2], time_format), row[3]))
+            self._lists.append(List(row[1], datetime.strptime(row[2], time_format), row[3]))
 
         db.close()
 
@@ -217,7 +232,7 @@ class Pihole:
         # Read in domains
         c.execute("SELECT * FROM whitelist")
         for row in c:
-            self.whitelist.append(row[0])
+            self._whitelist.append(row[0])
 
         db.close()
 
@@ -228,7 +243,7 @@ class Pihole:
         # Read in domains
         c.execute("SELECT * FROM blacklist")
         for row in c:
-            self.blacklist.append(row[0])
+            self._blacklist.append(row[0])
 
         db.close()
 
@@ -239,18 +254,18 @@ class Pihole:
         # Read in log
         c.execute("SELECT * FROM log")
         for row in c:
-            self.log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
+            self._log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
 
         db.close()
 
     def update_list(self, uri, domains, time, etag):
         # Update list and clean
-        for i in self.lists:
-            if i.get_uri() == uri:
-                i.set_date(time)
-                i.set_etag(etag)
-                i.clean()
-                i.set_domains(domains)
+        for l in self._lists:
+            if l.get_uri() == uri:
+                l.set_date(time)
+                l.set_etag(etag)
+                l.clean()
+                l.set_domains(domains)
                 break
 
         db = connect()
@@ -278,11 +293,11 @@ class Pihole:
         Return if the ad list has changed
         """
         # Don't add if it's already there
-        if domain in self.whitelist:
+        if domain in self._whitelist:
             return False
 
         changed = False
-        self.whitelist.append(domain)
+        self._whitelist.append(domain)
 
         db = connect()
         c = db.cursor()
@@ -290,8 +305,8 @@ class Pihole:
         c.execute("INSERT INTO whitelist VALUES (?)", (domain,))
 
         # Remove from ad domains if it's there
-        if domain in self.domains:
-            self.domains.remove(domain)
+        if domain in self._domains:
+            self._domains.remove(domain)
             c.execute("DELETE FROM ad_domains WHERE domain=?", (domain,))
             changed = True
 
@@ -304,11 +319,11 @@ class Pihole:
         Return if the ad list has changed
         """
         # Don't add if it's already there
-        if domain in self.blacklist:
+        if domain in self._blacklist:
             return False
 
         changed = False
-        self.blacklist.append(domain)
+        self._blacklist.append(domain)
 
         db = connect()
         c = db.cursor()
@@ -316,8 +331,8 @@ class Pihole:
         c.execute("INSERT INTO blacklist VALUES (?)", (domain,))
 
         # Add to list if it's not already there
-        if domain not in self.domains:
-            self.domains.append(domain)
+        if domain not in self._domains:
+            self._domains.append(domain)
             c.execute("INSERT INTO ad_domains VALUES (?)", (domain,))
             changed = True
 
@@ -330,11 +345,11 @@ class Pihole:
         Return if the ad list has changed
         """
         # Only remove if it's there
-        if domain not in self.whitelist:
+        if domain not in self._whitelist:
             return False
 
         changed = False
-        self.whitelist.remove(domain)
+        self._whitelist.remove(domain)
 
         db = connect()
         c = db.cursor()
@@ -343,7 +358,7 @@ class Pihole:
 
         # Check if domain should be re-added to ad domain list
         if domain in self.get_raw_domains():
-            self.domains.append(domain)
+            self._domains.append(domain)
             c.execute("INSERT INTO ad_domains VALUES (?)", (domain,))
             changed = True
 
@@ -356,11 +371,11 @@ class Pihole:
         Return if the ad list has changed
         """
         # Only remove if it's there
-        if domain not in self.blacklist:
+        if domain not in self._blacklist:
             return False
 
         changed = False
-        self.blacklist.remove(domain)
+        self._blacklist.remove(domain)
 
         db = connect()
         c = db.cursor()
@@ -369,7 +384,7 @@ class Pihole:
 
         # Check if domain should be removed from ad domain list
         if domain not in self.get_raw_domains():
-            self.domains.remove(domain)
+            self._domains.remove(domain)
             c.execute("DELETE FROM ad_domains WHERE domain=?", (domain,))
             changed = True
 
@@ -379,13 +394,13 @@ class Pihole:
 
     def compile_list(self):
         # Load all domains from lists (also removes duplicates)
-        self.domains = self.get_raw_domains()
+        self._domains = self.get_raw_domains()
 
         # Remove whitelisted entries
-        self.domains = [item for item in self.domains if item not in self.whitelist]
+        self._domains = [item for item in self._domains if item not in self._whitelist]
 
         # Add blacklisted entries (if not already blocked)
-        self.domains = list(set().union(self.domains, self.blacklist))
+        self._domains = list(set().union(self._domains, self._blacklist))
 
         db = connect()
         c = db.cursor()
@@ -394,7 +409,7 @@ class Pihole:
         c.execute("DELETE FROM ad_domains")
 
         # Insert new domains
-        for domain in self.domains:
+        for domain in self._domains:
             c.execute("INSERT INTO ad_domains VALUES(?)", (domain,))
 
         db.commit()
@@ -415,7 +430,7 @@ class Pihole:
                 file.write(pihole_ipv6 + " " + hostname + "\n")
 
             # Add the rest of the domains
-            for domain in self.domains:
+            for domain in self._domains:
                 file.write(pihole_ip + " " + domain + "\n")
 
                 if useIPv6:

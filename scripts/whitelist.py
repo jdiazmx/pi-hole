@@ -45,6 +45,7 @@ from docopt import docopt
 
 # SCRIPT
 
+
 errors = False
 codes = []
 

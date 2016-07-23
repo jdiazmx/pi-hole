@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-# Docopt
+# DOCOPT
 """Start up Pi-hole's ad-blocking gravity
 
 Usage: pihole gravity"""
@@ -39,18 +39,18 @@ from docopt import docopt
 
 
 # Downloads a list
-def download_list(list, mod, etag, pihole):
+def download_list(ad_list, mod, etag, pihole):
     # Clean old list
-    list.clean()
+    ad_list.clean()
 
     # Get new list
-    r = requests.get(list.get_uri(), timeout=5)
+    r = requests.get(ad_list.get_uri(), timeout=5)
 
     # Parse domains into list (removes comments)
     domains = [domain.split()[1] for domain in r.text.splitlines() if
                not domain.strip().startswith("#") and len(domain.strip()) > 0]
 
-    pihole.update_list(list.get_uri(), domains, mod, etag)
+    pihole.update_list(ad_list.get_uri(), domains, mod, etag)
 
     print("  * Downloaded!")
 
@@ -68,7 +68,7 @@ def main(argv):
     pihole = pihole_vars.Pihole()
 
     # Check for updates
-    for l in pihole.lists:
+    for l in pihole.get_lists():
         # Get domain for output
         domain = '{uri.netloc}'.format(uri=urlparse(l.get_uri()))
         print("Initializing pattern buffer for " + domain + "...")
@@ -94,9 +94,9 @@ def main(argv):
                     print("  * No update!")
                     num_pre_formatted += len(l.get_domains())
             # Check for Last-Modified header
-            elif "Last-Modified" in remote.headers and \
-                            len(remote.headers["Last-Modified"]) > 0 and \
-                            remote.headers["Last-Modified"] != '0':
+            elif ("Last-Modified" in remote.headers and
+                  len(remote.headers["Last-Modified"]) > 0 and
+                  remote.headers["Last-Modified"] != '0'):
                 remote_date = datetime(*eut.parsedate(remote.headers["Last-Modified"])[:6])
 
                 # If the remote date is newer than the stored date
