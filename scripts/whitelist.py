@@ -68,13 +68,17 @@ def main(argv):
     else:
         args = docopt(__doc__, argv=argv)
 
-    print(args)
     print("Loading Pi-hole instance...")
     pihole = pihole_vars.Pihole()
 
     if args["list"]:
-        for i, domain in enumerate(pihole.get_whitelist(), start=1):
-            print(str(i) + ") " + domain)
+        whitelist = pihole.get_whitelist()
+
+        if len(whitelist) == 0:
+            print("Your whitelist is empty!")
+        else:
+            for i, domain in enumerate(pihole.get_whitelist(), start=1):
+                print(str(i) + ") " + domain)
     else:
         global errors
         domains = args["<domains>"]
