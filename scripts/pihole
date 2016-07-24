@@ -101,6 +101,8 @@ def main():
             print(list.whitelist)
         elif help_arg == "blacklist":
             print(list.blacklist)
+        elif help_arg == "adlist":
+            print(adlist.__doc__)
         elif help_arg == "updateCore":
             print(updateCore.__doc__)
         elif help_arg == "updateWeb":
