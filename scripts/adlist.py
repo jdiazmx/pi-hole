@@ -47,4 +47,39 @@ from docopt import docopt
 def main(argv):
     args = docopt(__doc__, argv)
 
-    print(args)
+    print("Loading Pi-hole instance...")
+    pihole = pihole_vars.Pihole()
+
+    if args["list"]:
+        lists = pihole.get_list_uris()
+
+        if len(lists) == 0:
+            print("You have no lists (that's a bad thing)!")
+        else:
+            for i, l in enumerate(lists, start=1):
+                print(str(i) + ") " + l)
+    else:
+        lists = args["<URIs>"]
+        delete = args["--delete"]
+
+        for l in lists:
+            if not delete:
+                # Only add if it's not there
+                if l in pihole.get_list_uris():
+                    print("This list is already added: " + l)
+                    continue
+
+                print("Adding " + l)
+                pihole.add_list(l)
+                print("    Done!")
+            else:
+                # Only delete if it's there
+                if l not in pihole.get_list_uris():
+                    print("This list is not in the list of lists: " + l)
+                    continue
+
+                print("Removing " + l)
+                pihole.remove_list(l)
+                print("    Done!")
+
+        print('You should run "pihole gravity" now to refresh gravity')
