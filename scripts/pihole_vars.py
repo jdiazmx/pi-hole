@@ -189,8 +189,11 @@ class Pihole:
     def get_domains(self):
         return self._domains
 
+    def get_all_raw_domains(self):
+        return [item for l in self._lists for item in l.get_domains()]
+
     def get_raw_domains(self):
-        return list(set([item for l in self._lists for item in l.get_domains()]))
+        return list(set(self.get_all_raw_domains()))
 
     def get_lists(self):
         return self._lists
