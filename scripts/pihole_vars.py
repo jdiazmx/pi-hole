@@ -99,7 +99,8 @@ class List:
         self._etag = etag
 
     def get_domains(self):
-        # Lazy init
+        # Lazy init (loading in all the domains of every list every time a new Pihole instance was
+        # created would mean a very long wait)
         if self._domains is None:
             db = connect()
             c = db.cursor()
