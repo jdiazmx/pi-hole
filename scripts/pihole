@@ -27,6 +27,7 @@ Commands:
     gravity     Starts up Pi-hole's ad-blocking gravity
     whitelist   Whitelist domain(s)
     blacklist   Blacklist domain(s)
+    adlist      Add/Remove ad-lists
     updateCore  Update Pi-hole Core
     updateWeb   Update Pi-hole Web Interface
     flush       Flush the DNS log
@@ -43,6 +44,7 @@ See 'pihole help [command]' for more information on a specific command"""
 import pihole_vars
 import gravity
 import list
+import adlist
 import updateCore
 import updateWeb
 import flush
@@ -72,6 +74,8 @@ def main():
         list.main(command_args, True)
     elif command == "blacklist":
         list.main(command_args, False)
+    elif command == "adlist":
+        adlist.main(command_args)
     elif command == "updateCore":
         updateCore.main(command_args)
     elif command == "updateWeb":
