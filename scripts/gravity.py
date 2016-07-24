@@ -53,43 +53,52 @@ def download_list(ad_list, mod, etag, pihole):
 
     print("  * Downloaded!")
 
-    return len(domains)
 
-
+# TODO: Add support for locally stored ad-lists
 def main(argv):
-    # Make sure we're called correctly
     docopt(__doc__, argv=argv)
 
     print("Loading Pi-hole instance...")
-    num_pre_formatted = 0
     pihole = pihole_vars.Pihole()
 
-    # Check for updates
     for l in pihole.get_lists():
         # Get domain for output
         domain = '{uri.netloc}'.format(uri=urlparse(l.get_uri()))
         print("Initializing pattern buffer for " + domain + "...")
 
+        # Whitelist ad-list sources, so that we can reach them to update
+        pihole.add_whitelist(domain)
+
+        # Get headers
+        remote = requests.head(l.get_uri(), timeout=5)
+
         # Check if the list has been downloaded
         if len(l.get_domains()) == 0:
             # Must be a new list
             print("  * New list, downloading...")
-            num_pre_formatted += download_list(l, datetime.now(), l.get_etag(), pihole)
+
+            etag = ""
+            last_modified = datetime.now()
+
+            if "ETag" in remote.headers:
+                etag = remote.headers["ETag"]
+            elif ("Last-Modified" in remote.headers and
+                  len(remote.headers["Last-Modified"]) > 0 and
+                  remote.headers["Last-Modified"] != '0'):
+                last_modified = datetime(*eut.parsedate(remote.headers["Last-Modified"])[:6])
+
+            download_list(l, last_modified, etag, pihole)
         # Check if it needs updating
         else:
-            # Get request
-            remote = requests.head(l.get_uri(), timeout=5)
-
             # Check for E-Tag
-            if "ETag" in remote.headers and len(remote.headers["ETag"]) > 0:
+            if "ETag" in remote.headers:
                 etag = remote.headers["ETag"]
 
                 if etag != l.get_etag():
                     print("  * Update found, downloading...")
-                    num_pre_formatted += download_list(l, l.get_date(), etag, pihole)
+                    download_list(l, l.get_date(), etag, pihole)
                 else:
                     print("  * No update!")
-                    num_pre_formatted += len(l.get_domains())
             # Check for Last-Modified header
             elif ("Last-Modified" in remote.headers and
                   len(remote.headers["Last-Modified"]) > 0 and
@@ -99,31 +108,24 @@ def main(argv):
                 # If the remote date is newer than the stored date
                 if remote_date > l.get_date():
                     print("  * Update found, downloading...")
-                    num_pre_formatted += download_list(l, remote_date, l.get_etag(), pihole)
+                    download_list(l, remote_date, l.get_etag(), pihole)
                 else:
                     print("  * No update!")
-                    num_pre_formatted += len(l.get_domains())
             else:
                 # If we don't know the date, just download it
                 print("  * No modification date found, downloading...")
-                num_pre_formatted += download_list(l, datetime.now(), l.get_etag(), pihole)
+                download_list(l, l.get_date(), l.get_etag(), pihole)
 
-    # Condense into a formatted list of domains
-    print("Formatting " + str(num_pre_formatted) + " domains and removing duplicates...")
+    # Compile domains
+    print("Compacting mass... (" + str(len(pihole.get_raw_domains())) + " domains)")
     pihole.compile_list()
 
     # Export domains to hosts file
-    print("Exporting " + str(len(pihole.get_domains())) + " domains...")
+    print("Generating black hole... (" + str(len(pihole.get_domains())) + " unique domains)")
     pihole.export_hosts()
 
-    # Whitelist adlist uris
-    print("Whitelisting x adlist sources...")
-
-    # Whitelist and Blacklist domains
-    print("Running whitelist script...")
-    print("  * Whitelisted x domains!")
-    print("Running blacklist script...")
-    print("  * Blacklisted x domains!")
-
-    # Reload dnsmasq to apply changes
+    # Reload DNS to apply changes
+    print("Restarting gravity...")
     pihole_vars.restart_gravity()
+
+    print("Done!")
