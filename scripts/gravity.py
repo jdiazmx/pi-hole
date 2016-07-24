@@ -117,7 +117,7 @@ def main(argv):
                 download_list(l, l.get_date(), l.get_etag(), pihole)
 
     # Compile domains
-    print("Compacting mass... (" + str(len(pihole.get_raw_domains())) + " domains)")
+    print("Compacting mass... (" + str(len(pihole.get_all_raw_domains())) + " domains)")
     pihole.compile_list()
 
     # Export domains to hosts file
