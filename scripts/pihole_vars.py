@@ -73,8 +73,8 @@ error_codes = {
     "success": 0,
     "unknown": 1,
     "database_generic": 2,
-    "domain_already_exists": 3,
-    "domain_does_not_exist": 4
+    "already_exists": 3,
+    "does_not_exist": 4
 }
 
 
@@ -320,7 +320,7 @@ class Pihole:
 
     def add_whitelist(self, domain):
         """
-        :return: Return if the ad list has changed
+        :return: if the ad list has changed
         """
         # Don't add if it's already there
         if domain in self._whitelist:
@@ -346,7 +346,7 @@ class Pihole:
 
     def add_blacklist(self, domain):
         """
-        :return: Return if the ad list has changed
+        :return: if the ad list has changed
         """
         # Don't add if it's already there
         if domain in self._blacklist:
@@ -392,7 +392,7 @@ class Pihole:
 
     def remove_whitelist(self, domain):
         """
-        :return: Return if the ad list has changed
+        :return: if the ad list has changed
         """
         # Only remove if it's there
         if domain not in self._whitelist:
@@ -418,7 +418,7 @@ class Pihole:
 
     def remove_blacklist(self, domain):
         """
-        :return: Return if the ad list has changed
+        :return: if the ad list has changed
         """
         # Only remove if it's there
         if domain not in self._blacklist:
