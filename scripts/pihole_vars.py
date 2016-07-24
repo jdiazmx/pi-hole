@@ -198,6 +198,9 @@ class Pihole:
     def get_lists(self):
         return self._lists
 
+    def get_list_uris(self):
+        return [l.get_uri() for l in self._lists]
+
     def get_whitelist(self):
         return self._whitelist
 
@@ -292,9 +295,32 @@ class Pihole:
         db.commit()
         db.close()
 
+    def add_list(self, uri):
+        """
+        :return: if the list was added (if it's a new list)
+        """
+        # Only add if it's a new list
+        if uri in self.get_list_uris():
+            return False
+
+        l = List(uri)
+        self._lists.append(l)
+
+        db = connect()
+        c = db.cursor()
+
+        c.execute(
+            "INSERT INTO lists (uri, date, etag) VALUES (?, ?, ?)",
+            (l.get_uri(), l.get_date().strftime(time_format), l.get_etag())
+        )
+
+        db.commit()
+        db.close()
+        return True
+
     def add_whitelist(self, domain):
         """
-        Return if the ad list has changed
+        :return: Return if the ad list has changed
         """
         # Don't add if it's already there
         if domain in self._whitelist:
@@ -320,7 +346,7 @@ class Pihole:
 
     def add_blacklist(self, domain):
         """
-        Return if the ad list has changed
+        :return: Return if the ad list has changed
         """
         # Don't add if it's already there
         if domain in self._blacklist:
@@ -344,9 +370,29 @@ class Pihole:
         db.close()
         return changed
 
+    def remove_list(self, uri):
+        """
+        :return: if the list was removed (if it was a valid uri)
+        """
+        # Only remove if it's a valid uri
+        if uri not in self.get_list_uris():
+            return False
+
+        # Remove list
+        self._lists = [l for l in self._lists if l.get_uri() != uri]
+
+        db = connect()
+        c = db.cursor()
+
+        c.execute("DELETE FROM lists WHERE uri=?", (uri,))
+
+        db.commit()
+        db.close()
+        return True
+
     def remove_whitelist(self, domain):
         """
-        Return if the ad list has changed
+        :return: Return if the ad list has changed
         """
         # Only remove if it's there
         if domain not in self._whitelist:
@@ -372,7 +418,7 @@ class Pihole:
 
     def remove_blacklist(self, domain):
         """
-        Return if the ad list has changed
+        :return: Return if the ad list has changed
         """
         # Only remove if it's there
         if domain not in self._blacklist:
