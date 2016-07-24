@@ -49,6 +49,7 @@ def main(argv):
 
     print("Loading Pi-hole instance...")
     pihole = pihole_vars.Pihole()
+    changed = False
 
     if args["list"]:
         lists = pihole.get_list_uris()
@@ -71,6 +72,7 @@ def main(argv):
 
                 print("Adding " + l)
                 pihole.add_list(l)
+                changed = True
                 print("    Done!")
             else:
                 # Only delete if it's there
@@ -80,6 +82,10 @@ def main(argv):
 
                 print("Removing " + l)
                 pihole.remove_list(l)
+                changed = True
                 print("    Done!")
 
-        print('You should run "pihole gravity" now to refresh gravity')
+        if changed:
+            print('You should run "pihole gravity" now to refresh gravity')
+        else:
+            print("Gravity has not been altered")
