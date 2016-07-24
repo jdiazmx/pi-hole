@@ -33,11 +33,15 @@ CREATE TABLE IF NOT EXISTS lists (
 );
 
 CREATE TABLE IF NOT EXISTS whitelist (
-  domain TEXT NOT NULL PRIMARY KEY
+  id INTEGER,
+  domain TEXT NOT NULL,
+  PRIMARY KEY (id, domain)
 );
 
 CREATE TABLE IF NOT EXISTS blacklist (
-  domain TEXT NOT NULL PRIMARY KEY
+  id INTEGER,
+  domain TEXT NOT NULL,
+  PRIMARY KEY (id, domain)
 );
 
 CREATE TABLE IF NOT EXISTS log (
