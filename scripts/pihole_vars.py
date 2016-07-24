@@ -172,6 +172,18 @@ class Query:
         return self._blocked
 
 
+class ListItem:
+    def __init__(self, id, domain):
+        self._id = id
+        self._domain = domain
+
+    def get_id(self):
+        return self._id
+
+    def get_domain(self):
+        return self._domain
+
+
 class Pihole:
     _domains = []
     _lists = []
@@ -202,9 +214,15 @@ class Pihole:
         return [l.get_uri() for l in self._lists]
 
     def get_whitelist(self):
-        return self._whitelist
+        return [item.get_domain() for item in self._whitelist]
 
     def get_blacklist(self):
+        return [item.get_domain() for item in self._blacklist]
+
+    def get_raw_whitelist(self):
+        return self._whitelist
+
+    def get_raw_blacklist(self):
         return self._blacklist
 
     def get_log(self):
@@ -239,7 +257,7 @@ class Pihole:
         # Read in domains
         c.execute("SELECT * FROM whitelist")
         for row in c:
-            self._whitelist.append(row[0])
+            self._whitelist.append(ListItem(row[0], row[1]))
 
         db.close()
 
@@ -250,7 +268,7 @@ class Pihole:
         # Read in domains
         c.execute("SELECT * FROM blacklist")
         for row in c:
-            self._blacklist.append(row[0])
+            self._blacklist.append(ListItem(row[0], row[1]))
 
         db.close()
 
@@ -323,16 +341,16 @@ class Pihole:
         :return: if the ad list has changed
         """
         # Don't add if it's already there
-        if domain in self._whitelist:
+        if domain in self.get_whitelist():
             return False
-
-        changed = False
-        self._whitelist.append(domain)
 
         db = connect()
         c = db.cursor()
 
-        c.execute("INSERT INTO whitelist VALUES (?)", (domain,))
+        c.execute("INSERT INTO whitelist (domain) VALUES (?)", (domain,))
+        self._whitelist.append(ListItem(c.lastrowid, domain))
+
+        changed = False
 
         # Remove from ad domains if it's there
         if domain in self._domains:
@@ -349,16 +367,16 @@ class Pihole:
         :return: if the ad list has changed
         """
         # Don't add if it's already there
-        if domain in self._blacklist:
+        if domain in self.get_blacklist():
             return False
-
-        changed = False
-        self._blacklist.append(domain)
 
         db = connect()
         c = db.cursor()
 
-        c.execute("INSERT INTO blacklist VALUES (?)", (domain,))
+        c.execute("INSERT INTO blacklist (domain) VALUES (?)", (domain,))
+        self._blacklist.append(ListItem(c.lastrowid, domain))
+
+        changed = False
 
         # Add to list if it's not already there
         if domain not in self._domains:
@@ -395,16 +413,16 @@ class Pihole:
         :return: if the ad list has changed
         """
         # Only remove if it's there
-        if domain not in self._whitelist:
+        if domain not in self.get_whitelist():
             return False
-
-        changed = False
-        self._whitelist.remove(domain)
 
         db = connect()
         c = db.cursor()
 
         c.execute("DELETE FROM whitelist WHERE domain=?", (domain,))
+        self._whitelist = [item for item in self._whitelist if item.get_domain() != domain]
+
+        changed = False
 
         # Check if domain should be re-added to ad domain list
         if domain in self.get_raw_domains():
@@ -421,16 +439,16 @@ class Pihole:
         :return: if the ad list has changed
         """
         # Only remove if it's there
-        if domain not in self._blacklist:
+        if domain not in self.get_blacklist():
             return False
-
-        changed = False
-        self._blacklist.remove(domain)
 
         db = connect()
         c = db.cursor()
 
         c.execute("DELETE FROM blacklist WHERE domain=?", (domain,))
+        self._blacklist = [item for item in self._blacklist if item.get_domain() != domain]
+
+        changed = False
 
         # Check if domain should be removed from ad domain list
         if domain not in self.get_raw_domains():
@@ -447,10 +465,10 @@ class Pihole:
         self._domains = self.get_raw_domains()
 
         # Remove whitelisted entries
-        self._domains = [item for item in self._domains if item not in self._whitelist]
+        self._domains = [item for item in self._domains if item not in self.get_whitelist()]
 
         # Add blacklisted entries (if not already blocked)
-        self._domains = list(set().union(self._domains, self._blacklist))
+        self._domains = list(set().union(self._domains, self.get_blacklist()))
 
         db = connect()
         c = db.cursor()
