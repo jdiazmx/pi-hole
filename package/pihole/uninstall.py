@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (c) 2016 Jacob Salmela
 # Pi-hole: a DNS based ad-blocker [https://www.pi-hole.net]
 #
