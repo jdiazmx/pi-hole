@@ -37,7 +37,7 @@ Options:
 # IMPORTS
 
 
-import pihole
+from pihole import Pihole
 from docopt import docopt
 
 
@@ -48,11 +48,11 @@ def main(argv):
     args = docopt(__doc__, argv)
 
     print("Loading Pi-hole instance...")
-    ph = pihole.Pihole()
+    pihole = Pihole()
     changed = False
 
     if args["list"]:
-        lists = ph.get_list_uris()
+        lists = pihole.get_list_uris()
 
         if len(lists) == 0:
             print("You have no lists (that's a bad thing)!")
@@ -66,22 +66,22 @@ def main(argv):
         for l in lists:
             if not delete:
                 # Only add if it's not there
-                if l in ph.get_list_uris():
+                if l in pihole.get_list_uris():
                     print("This list is already added: " + l)
                     continue
 
                 print("Adding " + l)
-                ph.add_list(l)
+                pihole.add_list(l)
                 changed = True
                 print("    Done!")
             else:
                 # Only delete if it's there
-                if l not in ph.get_list_uris():
+                if l not in pihole.get_list_uris():
                     print("This list is not in the list of lists: " + l)
                     continue
 
                 print("Removing " + l)
-                ph.remove_list(l)
+                pihole.remove_list(l)
                 changed = True
                 print("    Done!")
 

@@ -21,7 +21,7 @@
 # IMPORTS
 
 
-import pihole
+from pihole import Pihole, restart_gravity
 from docopt import docopt
 
 
@@ -67,11 +67,11 @@ def main(argv, is_whitelist):
         args = docopt(blacklist, argv=argv)
 
     print("Loading Pi-hole instance...")
-    ph = pihole.Pihole()
+    pihole = Pihole()
     list_type = "whitelist" if is_whitelist else "blacklist"
 
     if args["list"]:
-        l = get_list(is_whitelist, ph)
+        l = get_list(is_whitelist, pihole)
 
         if len(l) == 0:
             print("Your " + list_type + " is empty!")
@@ -86,37 +86,37 @@ def main(argv, is_whitelist):
 
         for domain in domains:
             if not delete:
-                if domain in get_list(is_whitelist, ph):
+                if domain in get_list(is_whitelist, pihole):
                     print(domain + " is already in the " + list_type + "!")
                     continue
 
                 print("Adding " + domain + " to the " + list_type)
 
                 if is_whitelist:
-                    changed.append(ph.add_whitelist(domain))
+                    changed.append(pihole.add_whitelist(domain))
                 else:
-                    changed.append(ph.add_blacklist(domain))
+                    changed.append(pihole.add_blacklist(domain))
 
                 print("    Done!")
             else:
-                if domain not in get_list(is_whitelist, ph):
+                if domain not in get_list(is_whitelist, pihole):
                     print(domain + " is not in the " + list_type + "!")
                     continue
 
                 print("Removing " + domain + " from the " + list_type)
 
                 if is_whitelist:
-                    changed.append(ph.remove_whitelist(domain))
+                    changed.append(pihole.remove_whitelist(domain))
                 else:
-                    changed.append(ph.remove_blacklist(domain))
+                    changed.append(pihole.remove_blacklist(domain))
 
                 print("    Done!")
 
         # Regenerate and reload DNS only if something changed, or we're forced to
         if True in changed or force:
             print("Recalibrating gravity...")
-            ph.export_hosts()
-            pihole.restart_gravity()
+            pihole.export_hosts()
+            restart_gravity()
             print("    Done!")
         else:
             print("Gravity has not been altered")
