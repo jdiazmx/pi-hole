@@ -29,7 +29,7 @@ Usage: pihole debug"""
 # IMPORT
 
 
-import pihole_vars
+import pihole
 from docopt import docopt
 
 

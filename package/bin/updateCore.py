@@ -29,7 +29,7 @@ Usage: pihole updateCore"""
 # IMPORTS
 
 
-import pihole_vars
+import pihole
 from docopt import docopt
 
 

@@ -41,7 +41,7 @@ See 'pihole help [command]' for more information on a specific command"""
 # IMPORTS
 
 
-import pihole_vars
+import pihole
 import gravity
 import list
 import adlist
@@ -63,7 +63,7 @@ def main():
         print("This requires root access")
         exit()
 
-    arguments = docopt(__doc__, version=pihole_vars.version, options_first=True)
+    arguments = docopt(__doc__, version=pihole.version, options_first=True)
 
     command = arguments['<command>']
     command_args = [command] + arguments["<args>"]

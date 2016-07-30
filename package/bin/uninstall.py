@@ -29,7 +29,7 @@ Usage: pihole uninstall"""
 # IMPORT
 
 
-import pihole_vars
+import pihole
 from docopt import docopt
 
 
