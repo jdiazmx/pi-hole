@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Jacob Salmela
 # Pi-hole: a DNS based ad-blocker [https://www.pi-hole.net]
 #
-# Uninstall Pi-hole ;(
+# Update Pi-hole Core
 #
 # The Pi-Hole is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -21,15 +21,15 @@
 # DOCOPT
 
 
-"""Uninstall Pi-hole ;(
+"""Update Pi-hole Core
 
-Usage: pihole uninstall"""
-
-
-# IMPORT
+Usage: pihole updateCore"""
 
 
-import pihole_vars
+# IMPORTS
+
+
+import pihole
 from docopt import docopt
 
 

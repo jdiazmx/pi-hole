@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Jacob Salmela
 # Pi-hole: a DNS based ad-blocker [https://www.pi-hole.net]
 #
-# Generate a new Pi-hole debug log
+# Flush pihole.log
 #
 # The Pi-Hole is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -21,15 +21,15 @@
 # DOCOPT
 
 
-"""Generate a new Pi-hole debug log
+"""Flush Pi-hole's DNS log
 
-Usage: pihole debug"""
+Usage: pihole flush"""
 
 
 # IMPORT
 
 
-import pihole_vars
+import pihole
 from docopt import docopt
 
 

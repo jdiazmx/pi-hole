@@ -29,7 +29,7 @@ Usage: pihole gravity"""
 # IMPORTS
 
 
-import pihole_vars
+import pihole
 from urllib.parse import urlparse
 import requests
 from datetime import datetime
@@ -59,15 +59,15 @@ def main(argv):
     docopt(__doc__, argv=argv)
 
     print("Loading Pi-hole instance...")
-    pihole = pihole_vars.Pihole()
+    ph = pihole.Pihole()
 
-    for l in pihole.get_lists():
+    for l in ph.get_lists():
         # Get domain for output
         domain = '{uri.netloc}'.format(uri=urlparse(l.get_uri()))
         print("Initializing pattern buffer for " + domain + "...")
 
         # Whitelist ad-list sources, so that we can reach them to update
-        pihole.add_whitelist(domain)
+        ph.add_whitelist(domain)
 
         # Get headers
         remote = requests.head(l.get_uri(), timeout=5)
@@ -87,7 +87,7 @@ def main(argv):
                   remote.headers["Last-Modified"] != '0'):
                 last_modified = datetime(*eut.parsedate(remote.headers["Last-Modified"])[:6])
 
-            download_list(l, last_modified, etag, pihole)
+            download_list(l, last_modified, etag, ph)
         # Check if it needs updating
         else:
             # Check for E-Tag
@@ -96,7 +96,7 @@ def main(argv):
 
                 if etag != l.get_etag():
                     print("  * Update found, downloading...")
-                    download_list(l, l.get_date(), etag, pihole)
+                    download_list(l, l.get_date(), etag, ph)
                 else:
                     print("  * No update!")
             # Check for Last-Modified header
@@ -108,21 +108,21 @@ def main(argv):
                 # If the remote date is newer than the stored date
                 if remote_date > l.get_date():
                     print("  * Update found, downloading...")
-                    download_list(l, remote_date, l.get_etag(), pihole)
+                    download_list(l, remote_date, l.get_etag(), ph)
                 else:
                     print("  * No update!")
             else:
                 # If we don't know the date, just download it
                 print("  * No modification date found, downloading...")
-                download_list(l, l.get_date(), l.get_etag(), pihole)
+                download_list(l, l.get_date(), l.get_etag(), ph)
 
     # Compile domains
-    print("Compacting mass... (" + str(len(pihole.get_all_raw_domains())) + " domains)")
-    pihole.compile_list()
+    print("Compacting mass... (" + str(len(ph.get_all_raw_domains())) + " domains)")
+    ph.compile_list()
 
     # Export domains to hosts file
-    print("Generating black hole... (" + str(len(pihole.get_domains())) + " unique domains)")
-    pihole.export_hosts()
+    print("Generating black hole... (" + str(len(ph.get_domains())) + " unique domains)")
+    ph.export_hosts()
 
     # Reload DNS to apply changes
     print("Restarting gravity...")
