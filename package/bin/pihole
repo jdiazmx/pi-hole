@@ -41,15 +41,7 @@ See 'pihole help [command]' for more information on a specific command"""
 # IMPORTS
 
 
-import pihole
-import gravity
-import list
-import adlist
-import updateCore
-import updateWeb
-import flush
-import debug
-import uninstall
+from pihole import version, gravity, list, adlist, updateCore, updateWeb, flush, debug, uninstall
 from docopt import docopt
 import os
 
@@ -63,7 +55,7 @@ def main():
         print("This requires root access")
         exit()
 
-    arguments = docopt(__doc__, version=pihole.version, options_first=True)
+    arguments = docopt(__doc__, version=version, options_first=True)
 
     command = arguments['<command>']
     command_args = [command] + arguments["<args>"]
