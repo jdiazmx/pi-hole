@@ -233,6 +233,7 @@ class Pihole:
         c = db.cursor()
 
         # Read in domains
+        self._domains = []
         c.execute("SELECT * FROM ad_domains")
         for row in c:
             self._domains.append(row[0])
@@ -244,6 +245,7 @@ class Pihole:
         c = db.cursor()
 
         # Read in lists
+        self._lists = []
         c.execute("SELECT * FROM lists")
         for row in c:
             self._lists.append(List(row[1], datetime.strptime(row[2], time_format), row[3]))
@@ -255,6 +257,7 @@ class Pihole:
         c = db.cursor()
 
         # Read in domains
+        self._whitelist = []
         c.execute("SELECT * FROM whitelist")
         for row in c:
             self._whitelist.append(ListItem(row[0], row[1]))
@@ -266,6 +269,7 @@ class Pihole:
         c = db.cursor()
 
         # Read in domains
+        self._blacklist = []
         c.execute("SELECT * FROM blacklist")
         for row in c:
             self._blacklist.append(ListItem(row[0], row[1]))
@@ -277,6 +281,7 @@ class Pihole:
         c = db.cursor()
 
         # Read in log
+        self._log = []
         c.execute("SELECT * FROM log")
         for row in c:
             self._log.append(Query(row[0], row[1], row[2], row[3], True if row[4] == 1 else False))
