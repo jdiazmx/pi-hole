@@ -30,6 +30,7 @@ Commands:
     adlist      Add/Remove ad-lists
     updateCore  Update Pi-hole Core
     updateWeb   Update Pi-hole Web Interface
+    refresh     Reload DNS server
     flush       Flush the DNS log
     debug       Generate a new debug log
     help        Show corresponding help
@@ -41,7 +42,7 @@ See 'pihole help [command]' for more information on a specific command"""
 # IMPORTS
 
 
-from pihole import version, gravity, list, adlist, updateCore, updateWeb, flush, debug, uninstall
+from pihole import version, gravity, list, adlist, updateCore, updateWeb, flush, debug, uninstall, restart_gravity
 from docopt import docopt
 import os
 
@@ -72,6 +73,8 @@ def main():
         updateCore.main(command_args)
     elif command == "updateWeb":
         updateWeb.main(command_args)
+    elif command == "refresh":
+        restart_gravity()
     elif command == "flush":
         flush.main(command_args)
     elif command == "debug":

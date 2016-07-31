@@ -59,13 +59,6 @@ local_vars = pihole_dir + "pihole.conf"
 # CLASSES
 
 
-# Database Schema:
-# ad_domains (domain TEXT)
-# unformatted_domains (domain TEXT, list_id INTEGER)
-# lists (id INTEGER PRIMARY KEY, uri TEXT, date DATETIME)
-# log (time DATETIME, domain TEXT, client TEXT, record TEXT, blocked INTEGER)
-
-
 time_format = '%Y-%m-%d %H:%M:%S'
 
 error_codes = {
