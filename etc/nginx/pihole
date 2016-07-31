@@ -22,13 +22,13 @@ server {
     }
 
     # Config for uWSGI & Flask
-    location = /api/v1 {
-        rewrite ^ /api/v1/;
+    location = /admin/api/v1 {
+        rewrite ^ /admin/api/v1/;
     }
-    location ~ ^/api/v1/.*$ {
+    location ~ ^/admin/api/v1/.*$ {
         try_files $uri @api;
     }
-    location /api/v1 {
+    location /admin/api/v1 {
         try_files $uri @api;
     }
     location @api {
