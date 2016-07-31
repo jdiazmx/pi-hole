@@ -1,0 +1,55 @@
+# Pi-Hole server configuration
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # Send everything to the blackhole
+    error_page 404 = /pihole/index.html;
+
+    root /var/www/html;
+
+    # Add index.php to the list if you are using PHP
+    index index.html index.htm index.php index.nginx-debian.html;
+
+    server_name _;
+
+    # Make sure our php scripts can run
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi.conf;
+    }
+
+    # Config for uWSGI & Flask
+    location = /api/v1 {
+        rewrite ^ /api/v1/;
+    }
+    location ~ ^/api/v1/.*$ {
+        try_files $uri @api;
+    }
+    location /api/v1 {
+        try_files $uri @api;
+    }
+    location @api {
+        include uwsgi_params;
+        uwsgi_pass unix:/tmp/api_uwsgi.sock;
+    }
+
+    # Config for AngularJS frontend
+    location ~* ^/admin/?(whitelist|blacklist|queries|sysinfo)?$ {
+        index /admin/index.html;
+        try_files $uri /admin/index.html;
+    }
+
+    # Redirect images
+    location ~ \.(png|jpg|jpeg|gif|svg|tiff|bmp|webp)$ {
+        try_files '' $uri /pihole/index.png;
+    }
+
+    # Also js files can't escape
+    location ~ \.js$ {
+        try_files '' $uri /pihole/index.js;
+    }
+}
+
