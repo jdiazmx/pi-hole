@@ -73,7 +73,8 @@ error_codes = {
     "unknown": 1,
     "database_generic": 2,
     "already_exists": 3,
-    "does_not_exist": 4
+    "does_not_exist": 4,
+    "incorrect_params": 5
 }
 
 
